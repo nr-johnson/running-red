@@ -187,7 +187,10 @@ function animate() {
         drawWorld(c, canvas, scrollOffset, finishLine)
         
         npcs.forEach(npc => {
-            npc.update(c, canvas, gravity, terminalVelocity)
+            if (npc.alive) {
+                npc.update(c, canvas, gravity, terminalVelocity)
+            }
+            
         })
 
         // Udates player

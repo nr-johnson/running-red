@@ -12,6 +12,7 @@ export class Npc {
         this.defaultSpeed = speed
         this.running = false
         this.physics = physics
+        this.alive = true
 
         this.position = {
             x: start[0],
@@ -116,7 +117,7 @@ export class Npc {
                     this.velocity.y += gravity
                 }
             } else {
-                this.position.y = 50
+                this.alive = false
             }
         }        
 

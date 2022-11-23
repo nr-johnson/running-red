@@ -27,6 +27,7 @@ export class Imp {
         this.running = false
         this.distracted = false
         this.detectionRaius = 150
+        this.alive = true
 
         this.position = {
             x: start[0],
@@ -122,7 +123,7 @@ export class Imp {
                 this.velocity.y += gravity
             }
         } else {
-            this.position.y = 50
+            this.alive = false
         }
 
         if ((this.stopped == 4 || this.stopped == 2) && this.jump == true) {
