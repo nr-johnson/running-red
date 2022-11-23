@@ -1,43 +1,50 @@
 import { Player } from '/static/scripts/objects/player.js'
-import { Block } from '/static/scripts/objects/block.js'
-import { newImage, sizeWindow } from '/static/scripts/tools.js'
-
-// Player Sprite
-const playerSprite = await newImage('/static/images/red hood sprite.png')
-const playerFlipped = await newImage('/static/images/red hood sprite_flipped.png')
-
-// Platform image
-const platImage = await newImage('/static/images/platform.png')
+import { renderUI } from '/static/scripts/UI/uiMain.js'
+import { newImage, buildWorld, drawWorld, blocks, npcs } from '/static/scripts/tools.js'
+import { scrollOffset, resetScroll } from '/static/scripts/objects/objectTools.js'
 
 // Canvas div
-const canvas = document.querySelector('canvas')
+const main = document.getElementById('game')
+const gameSize = main.getBoundingClientRect()
+export const canvas = document.getElementById('mainCanvas')
 // Canvas 3d context object
 const c = canvas.getContext('2d')
 
-const speed = 5 // Player movement speed
-const jumpHeight = 18
-const finishLine = 1000 // Length to scroll before winning
-const gravity = 1.75 // Fall speed
-const terminalVelocity = 30
-let gameOver = false
 // Current window size, used for calculations when the window is resized
 let win = {
-    x: window.innerWidth,
-    y: window.innerHeight
+    x: gameSize.width,
+    y: gameSize.height
 }
+canvas.width = win.x
+canvas.height = win.y
+
+// win = sizeWindow(canvas)
+
+const jumpHeight = 18
+export let finishLine = 1500 // Length to scroll before winning
+export const blockLeft = 100
+export const blockRight = Math.round(canvas.width - 200)
+const gravity = 1.75 // Fall speed
+const terminalVelocity = 34
+let gameOver = false
+
+
 // Values for if the user is pressing the A or D keys
-const keys = {
+export const keys = {
     right: {
         pressed: false
     },
     left: {
         pressed: false
     },
+    down : {
+        pressed: false
+    },
     draw: {
         pressed: false
     },
-    slide: {
-
+    jump: {
+        pressed: false
     }
 }
 
@@ -49,173 +56,156 @@ const keys = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 */
 
-// Creates player
-const player = new Player(playerSprite, playerFlipped, win)
-// Creates each collision block
-const blocks = [
-    new Block({ x: 200, y: 124, blocking: {x: false, y: true}, image: platImage }),
-    new Block({ x: 325, y: 148, blocking: {x: false, y: true}, image: platImage }),
-    new Block({ x: 450, y: 200, blocking: {x: false, y: true}, image: platImage }),
-    new Block({ x: 525, y: 280, blocking: {x: false, y: true}, image: platImage }),
-    new Block({ x: 100, y: 24, blocking: {x: true, y: true}, image: platImage }),
-    new Block({ x: 1340, y: 24, blocking: {x: true, y: true}, image: platImage }),
-    new Block({ x: 600, y: 24, blocking: {x: true, y: true}, image: platImage }),
-    new Block({ x: 450, y: 48, blocking: {x: true, y: true}, image: platImage }),
-]
+export let player
+let images = {}
+let world = { 
+    gameLength: 1600,
+    player: {
+        start: [100, 0],
+        health: 100
+    },
+    npcs: [
+        {
+            note: 'fox',
+            type: 'generic',
+            start: [500, 33],
+            health: 100,
+            interactive: false,
+            physics: false,
+            sprite: [
+                '/static/images/sprites/Fox Sprite Sheet_flipped.png',
+                '/static/images/sprites/Fox Sprite Sheet.png'
+            ],
+            speed: .75,
+            contact: {mt: 10, t: 10, r: 42, b: -8, l: 12},
+            frames: [14, 7],
+            delay: 12,
+            animated: [{from: [1,0], to: [1,1], key: 'right', time: 1},
+            {from: [6,0], to: [6,6], key: null, time: 7},
+            {from: [5,0], to: [5,5], key: null, time: 300},
+            {from: [2,0], to: [2,7], key: 'right', time: 300},
+            {from: [1,0], to: [1, 13], key: null, time: 50},
+            {from: [1,0], to: [1,1], key: 'left', time: 1},
+            {from: [6,0], to: [6,6], key: null, time: 7},
+            {from: [5,0], to: [5,5], key: null, time: 300},
+            {from: [2,0], to: [2,7], key: 'left', time: 300}]
+        },
+        {
+            type: 'imp',
+            start: [910, 35],
+            health: 100,
+            animated: [
+                {key: ['left'], time: 260},
+                {key: null, time: 200},
+                {key: ['right', 'down'], time: 180},
+                {key: ['right'], time: 200},
+            ]
+        },
+        {
+            note: 'squirrel',
+            type: 'generic',
+            start: [200, 21],
+            health: 100,
+            interactive: false,
+            physics: false,
+            sprite: [
+                '/static/images/sprites/Squirrel Sprite Sheet_flipped.png',
+                '/static/images/sprites/Squirrel Sprite Sheet.png'
+            ],
+            speed: .75,
+            contact: {mt: 10, t: 10, r: 0, b: 3, l: 0},
+            frames: [8,7],
+            delay: 20,
+            animated: [
+                {from: [0,0], to: [0,4], key: null, time: 20},
+                {from: [1,0], to: [1,4], key: null, time: 20},
+                {from: [2,0], to: [2,7], key: 'right', time: 200},
+                {from: [3,0], to: [3,3], key: null, time: 100},
+                {from: [4,0], to: [4,1], key: null, time: 200},
+                {from: [2,0], to: [2,7], key: 'left', time: 10},
+                {from: [3,0], to: [3,3], key: null, time: 100},
+                {from: [4,0], to: [4,1], key: null, time: 200},
+                {from: [2,0], to: [2,7], key: 'right', time: 10},
+                {from: [0,0], to: [0,4], key: null, time: 20},
+                {from: [1,0], to: [1,4], key: null, time: 20},
+                {from: [2,0], to: [2,7], key: 'left', time: 200}
+            ]
+        }
+    ],
+    objectsHash: [
+        'x.15 1.gs 1.g 1.ge',
+        '',
+        '',
+        'x.15 1.gs 1.g 1.ge',
+        '',
+        '',
+        'x.15 4.gs 4.g 4.ge',
+        'x.30 4.gs 4.g 4.ge',
+        'x.30 4.e x.2 4.gs 4.g 4.ge',
+        'x.5 1.gs 1.g.5 1.ge x.4 1.gs 1.g.45 1.ge'
+    ],
+    images: {
+        background: [
+            {img: '/static/images/backgrounds/woods_1.png', index: 0},
+            {img: '/static/images/backgrounds/woods_2.png', index: 1},
+            {img: '/static/images/backgrounds/woods_3.png', index: 2}
+        ]
+    }
+}
 
-win = sizeWindow(canvas)
+async function initiate() {
+    // Player Sprite
+    const playerImg = await newImage('/static/images/red hood sprite.png')
+    const playerFlipped = await newImage('/static/images/red hood sprite_flipped.png')
+    
+    await buildWorld(world, canvas, images)
+    // Creates player
 
+    player = new Player(playerImg, playerFlipped, world.player, canvas)
 
-// The scroll index for the environment
-let scrollOffset = 0
+    // Initiates the game
+    animate()
+    
+}
+
+initiate(c, canvas, scrollOffset, finishLine)
+
 
 // Frame rate throtteling variable
 let fpsInterval = 1000 / 45
-
 // Looping function that handles drawing, user input and object interactions
-const animate = () => {
+function animate() {
     // Timeout used to slowdown framerate
-    setTimeout(function () {
+    setTimeout(() => {
         requestAnimationFrame(animate);
-    
+        
+        
+
         // Clears the previous frame
         c.clearRect(0,0,canvas.width, canvas.height)
 
-        // Udates player
-        player.update(c, gravity, terminalVelocity)
-        // Updates each platform
-        blocks.forEach(block => {
-            block.draw(c)
-        })
-
-        // Imobilaze player if damage animation is playing
-        if (player.damaging > 0) return
-
-        // Player movement and platform scrolling using player velocity
-        // Moving to the right
-        // If D is pressed and the player is < 60% away from right screen edge
-        if (player.weaponState <= 0) {
-            if ((keys.right.pressed || (player.velocity.x > 0 && player.sliding > 0)) && player.position.x < finishLine) {
-                !player.flipped && player.flip()
-                player.running = true
-                player.velocity.x = speed
-    
-            // Moving to the left
-            // If A key pressed and player is > 10% away from left screen edge
-            } else if ((keys.left.pressed || (player.velocity.x < 0 && player.sliding > 0)) && player.position.x > 100) {
-                player.flipped && player.flip()
-                player.running = true
-                player.velocity.x = speed * -1
-            } else {
-                // Stop player movement
-                player.velocity.x = 0
-                
-                // Scrolls platforms opposite of player movement when player is at stopping points (simulates progression)
-                // If D pressed and not at winning location
-                if (keys.right.pressed && scrollOffset <= finishLine) {
-                    scrollOffset += speed
-                    player.running = true
-                    // Moves each platfrom
-                    blocks.forEach(block => {
-                        block.position.x -= speed
-                    })
-                // If A pressed and player is not at start
-                } else if (keys.left.pressed && scrollOffset >= 0) {
-                    scrollOffset -= speed
-                    player.running = true
-                    // Moves each platform
-                    blocks.forEach(block => {
-                        block.position.x += speed
-                    })
-                } else {
-                    player.running = false
-                }
-            }
-        } else {
-            player.velocity.x = 0
-            running = false
-        }
+        drawWorld(c, canvas, scrollOffset, finishLine)
         
-
-        // Platform collision
-        // Ok... Phew... Lots of conditionals here
-        // For each platform, if character is at its height and within its start and ending end, stop the character from falling.
-        blocks.forEach(block => {
-            // Vertical collision detection
-            if (block.blocking.y) {
-                if (player.position.y + player.contact.b <= block.position.y 
-                    && player.position.y + player.contact.b + player.velocity.y > block.position.y
-                    && player.position.x + player.contact.r >= block.position.x
-                    && player.position.x + player.contact.l <= block.position.x + block.width
-                    ) {
-                    if (player.velocity.y > player.fallDamage) {
-                        player.damaging = 20
-                        player.position.y = block.position.y - player.contact.b - 1
-                    } else {
-                        player.position.y = block.position.y - player.contact.b
-                    }
-                    
-                    player.velocity.y = 0
-                }
-            }
-
-            // Horizontal collision detection
-            if (block.blocking.x) {
-                const btm = player.position.y + player.contact.b
-                const top = player.position.y + player.contact.t
-                if (btm <= block.position.y) return
-                if(keys.right.pressed) {
-                    if ((player.position.x + player.contact.r >= block.position.x
-                        || player.position.x + player.contact.r + player.velocity.x > block.position.x)
-                        && player.position.x + player.contact.r < block.position.x + (block.width / 2)
-                        && !(top > block.position.y + block.height)
-                    ) {
-                        player.position.x = block.position.x - player.width + (player.width - player.contact.r) - 1
-                        player.velocity.x = 0
-                        player.running = false
-                        
-                    }
-                }
-                
-                if (keys.left.pressed) {
-                    if ((player.position.x + player.contact.l <= block.position.x + block.width
-                        || player.position.x + player.contact.l - player.velocity.x < block.position.x + block.width)
-                        && player.position.x + player.contact.l > block.position.x + (block.width / 2)
-                        && !(top > block.position.y + block.height)
-                    ) {
-                        player.position.x = block.position.x + block.width - player.contact.l
-                        player.velocity.x = 0
-                        player.running = false
-                    }
-                }
-
-                if (player.position.x + player.contact.r >= block.position.x
-                    && player.position.x + player.contact.l <= block.position.x + block.width
-                    && player.position.y + 36 < block.position.x + block.height
-                    && player.sliding > 0
-                ) {
-                    player.sliding = 4
-                }
-            }
+        npcs.forEach(npc => {
+            npc.update(c, canvas, gravity, terminalVelocity)
         })
 
+        // Udates player
+        player.update(c, gravity, terminalVelocity, canvas)
         // Marks game win
         if (scrollOffset >= finishLine && !gameOver) {
             gameOver = true
-            player.position.x = finishLine -1
-            alert('You Win!')
+            player.position.x = player.position.x -1
+            console.log('you win')
         }
     }, fpsInterval);
 
-
+    renderUI()
 
     // requestAnimationFrame(animate)
-    
-
-       
 }
-// Initiates the game
-animate()
+
+main.classList.add('loaded')
 
 /*
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -225,48 +215,71 @@ animate()
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 */
 
+export function reset() {
+    player.reset()
+    blocks.forEach(blk => {
+        blk.reset()
+    })
+    resetScroll()
+    npcs.forEach(npc => {
+        npc.reset()
+    })
+}
+
 
 
 // Detects key presses
 window.addEventListener('keydown', ({ keyCode }) => {
-    console.log(keyCode)
     switch (keyCode) {
+        case 38:
+        case 32:
+        case 87:
+            // W
+            // [Spacebar]
+            // Up
+            keys.jump.pressed = true
+            if (player.velocity.y == 0 && player.jump) {
+                player.jump = false
+                player.velocity.y -= jumpHeight
+                // player.sliding > 0 ? player.velocity.x += 10 : player.sliding < 0 ? player.velocity.x -= 10 : null
+            }
+            break
+        case 96:
+        case 81:
+            // numpad 0
+            // Q (Shoot)
+            if (player.sliding == 0) {
+                player.weaponState = 1
+            }
+            
+            
+            keys.draw.pressed = true
+            break
         case 37:
         case 65:
+            // A
             // Left
             keys.left.pressed = true
             break
 
-        case 83:
-            // Down
-            break
-
-        case 40:
+        
         case 39:
         case 68:
+            // D
             // Right
             keys.right.pressed = true
             break
-        
-        case 17:
-            if (player.velocity.x != 0) {
-                player.sliding = 24
-            }
-            break
 
-        case 38:
-        case 32:
-        case 87:
-            // Up
-            if (player.velocity.y == 0) {
-                player.velocity.y -= jumpHeight
+        case 40:
+        case 83:
+        case 17:
+            // Down
+            // S
+            // Ctrl
+            if (player.running && !keys.down.pressed && player.sliding == 0) {
+                player.flipped ? player.sliding = 24 : player.sliding = -24
             }
-            break
-        
-        case 69:
-            // Shoot
-            player.weaponState = 1
-            keys.draw.pressed = true
+            keys.down.pressed = true
             break
     }
 })
@@ -280,13 +293,8 @@ window.addEventListener('keyup', ({ keyCode }) => {
             keys.left.pressed = false
             break
 
-        case 83:
-            // Down
-            break
-
-            case 40:
-            case 39:
-            case 68:
+        case 39:
+        case 68:
             // Right
             keys.right.pressed = false
             break
@@ -296,9 +304,27 @@ window.addEventListener('keyup', ({ keyCode }) => {
         //     // Up
         //     player.velocity.y -= jumpHeight
         //     break
+        case 40:
+        case 83:
+        case 17:
+            // Down
+            // S
+            // Ctrl
+            keys.down.pressed = false
+            break
     
-        case 69:
-            // Shoot
+        case 38:
+        case 32:
+        case 87:
+            // W
+            // [Spacebar]
+            // Up
+            keys.jump.pressed = false
+        
+        case 96:
+        case 81:
+            // numpad 0
+            // Q (Shoot)
             if (player.weaponState == 2) {
                 player.weaponState = 3
             } else {
@@ -312,13 +338,20 @@ window.addEventListener('keyup', ({ keyCode }) => {
 })
 
 // Window resize event listener.
-window.addEventListener('resize', () => {
-    // Calculates the change in window height
-    const dif = window.innerHeight - win.y
-    // Moves player Y position based on the window size change
-    player.position.y = player.position.y + dif
-    // Redraws the player
-    player.draw(c)
-    // Resizes the canvas
-    win = sizeWindow(canvas)
-}, true)
+// window.addEventListener('resize', () => {
+//     // Calculates the change in window height
+//     const dif = window.innerHeight - win.y
+//     // Moves player Y position based on the window size change
+//     player.position.y += dif
+//     // Redraws the player
+//     player.draw(c)
+//     // Resizes the canvas
+//     win = sizeWindow(canvas)
+
+    
+// }, true)
+
+
+export function setGameEnd(end) {
+    finishLine = end
+}

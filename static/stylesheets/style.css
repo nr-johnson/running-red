@@ -1,0 +1,36 @@
+body {
+    margin: 0;
+  }
+#game {
+  position: absolute;
+  width: 960px;
+  height: 480px;
+  
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+canvas, #background {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+#background {
+  border: 2px solid black;
+  background-color: #afbaf2;
+  box-shadow: 0 0 4px black;
+  border-radius: 4px;
+}
+
+@media (max-width: 980px) {
+  #game.loaded {
+    width: 720px;
+    height: 360px;
+  }
+}
+@media (max-width: 740px) {
+  #game.loaded {
+    width: 480px;
+    height: 240px;
+  }
+}

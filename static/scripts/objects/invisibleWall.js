@@ -1,6 +1,6 @@
 // Blocks with collision
-export class Block {
-    constructor({  position, blocking, image, height, width}) {
+export class Wall {
+    constructor({  position, blocking, height, width}) {
         // Block location
         this.position = {
             x: position.x,
@@ -9,9 +9,7 @@ export class Block {
         
         // If object blocks from Y and X axis
         this.blocking = blocking
-
-        // Platform image to be drawn
-        this.image = image
+        this.color = false
 
         this.width = width
         this.height = height
@@ -26,11 +24,9 @@ export class Block {
     // Calculates position and if the image is valid, draws the platform
     draw(c, canvas) {
         this.position.y = canvas.height - this.origin.y
-        if (this.image) {
-            // Only draws the image if it's in view
-            if (this.position.x + this.width > 0 && this.position.x < canvas.width) {
-                c.drawImage(this.image, this.position.x, this.position.y)
-            }
+        if (this.color) {
+            c.fillStyle = 'blue'
+            c.fillRect(this.position.x, this.position.y, this.width, this.height)
         }
     }
 
