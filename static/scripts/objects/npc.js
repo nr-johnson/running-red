@@ -22,6 +22,11 @@ export class Npc {
             x: this.position.x,
             y: this.position.y
         }
+        this.on = {
+            type: '',
+            left: 0,
+            right: 0
+        }
         this.health = health ? health : 100
         this.flipped = true
         this.frame = [0,0]
@@ -120,10 +125,7 @@ export class Npc {
                 this.alive = false
             }
         }        
-
-        if (this.position.x + this.width > 0 && this.position.x < canvas.width) {
-            this.sprite.draw(c, this.frame, this.flipped, this.position)
-        }
+        this.sprite.draw(c, this.frame, this.flipped, this.position)
         
 
         if (this.physics) {

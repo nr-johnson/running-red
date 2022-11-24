@@ -107,16 +107,23 @@ const addObjects = (levels, canvas) => {
                     continue
                 }
                 const params = {
+
+                    type: dets[1].includes('e') ? 'end' : dets[1].includes('s') ? 'start' : 'center',
+
                     position: {
                         x: progX,
                         y: progY + 24
                     },
-                    blocking: dets[0] == '1' ? {t: true} : dets[0] == '2' ? {r: true, l: true} : dets[0] == '3' ? {r: true, b: true, l: true} : dets[0] == '4' ? {t: true, r: true, b: true, l: true} : {},
+                    blocking: dets[0].includes('1') ? {t: true} : dets[0].includes('2') ? {r: true, l: true} : dets[0].includes('3') ? {r: true, b: true, l: true} : dets[0].includes('4') ? {t: true, r: true, b: true, l: true} : {},
                     
+                    blockEdge: [],
+
                     width: 24,
                     height: 24
                 }
-
+                if (dets[0].includes('p')) params.blockEdge.push('player')
+                if (dets[0].includes('s')) params.blockEdge.push('sprite')
+                console.log(params.blockEdge)
                 if (dets[1] == 'e') {
                     blocks.push(new Wall(params))
                     progX = params.position.x + 24
@@ -148,5 +155,40 @@ const addObjects = (levels, canvas) => {
             progY += 24
         }
         resolve()
+    })
+}
+
+export function getLevel() {
+    return new Promise(async resolve => {
+        const url = '/data?level=1'
+        const data = await ajax('GET', url)
+        resolve(JSON.parse(data))
+    })
+}
+
+export function ajax(method, url, data) {
+    return new Promise(resolve => {
+        let htp = new XMLHttpRequest();
+
+        htp.onreadystatechange = function() {
+            if (this.readyState == 4 && (this.status == 200 || this.status == 201)) {
+                // If response from server is good, return the response
+                resolve(this.response)
+            } else if(this.readyState == 4) {
+                console.log(this.status)
+                // If response is bad, return error status html to loaded into page.
+                let message = '<p>Could not get data from server</p>'
+                if(this.status == 404) message = '<p>' + this.statusText + '</p>'
+                resolve('<h1>Error ' + this.status + '</h1>' + message)
+            }
+        };
+        
+        htp.open(method, url);
+        if(data) {
+            htp.setRequestHeader( 'Content-Type', 'application/json' )
+            htp.send(JSON.stringify(data))
+        } else {
+            htp.send()
+        }
     })
 }

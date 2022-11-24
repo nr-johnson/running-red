@@ -16,6 +16,11 @@ export class Player {
             l: 45
         }
 
+        this.on = {
+            type: '',
+            left: 0,
+            right: 0
+        }
         this.health = cond.health ? cond.health : 100
         this.flipped = true
         this.running = false

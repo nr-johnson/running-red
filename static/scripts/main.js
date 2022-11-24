@@ -1,6 +1,6 @@
 import { Player } from '/static/scripts/objects/player.js'
 import { renderUI } from '/static/scripts/UI/uiMain.js'
-import { newImage, buildWorld, drawWorld, blocks, npcs } from '/static/scripts/tools.js'
+import { newImage, buildWorld, drawWorld, blocks, npcs, getLevel } from '/static/scripts/tools.js'
 import { scrollOffset, resetScroll } from '/static/scripts/objects/objectTools.js'
 
 // Canvas div
@@ -58,100 +58,7 @@ export const keys = {
 
 export let player
 let images = {}
-let world = { 
-    gameLength: 1600,
-    player: {
-        start: [100, 0],
-        health: 100
-    },
-    npcs: [
-        {
-            note: 'fox',
-            type: 'generic',
-            start: [500, 33],
-            health: 100,
-            interactive: false,
-            physics: false,
-            sprite: [
-                '/static/images/sprites/Fox Sprite Sheet_flipped.png',
-                '/static/images/sprites/Fox Sprite Sheet.png'
-            ],
-            speed: .75,
-            contact: {mt: 10, t: 10, r: 42, b: -8, l: 12},
-            frames: [14, 7],
-            delay: 12,
-            animated: [{from: [1,0], to: [1,1], key: 'right', time: 1},
-            {from: [6,0], to: [6,6], key: null, time: 7},
-            {from: [5,0], to: [5,5], key: null, time: 300},
-            {from: [2,0], to: [2,7], key: 'right', time: 300},
-            {from: [1,0], to: [1, 13], key: null, time: 50},
-            {from: [1,0], to: [1,1], key: 'left', time: 1},
-            {from: [6,0], to: [6,6], key: null, time: 7},
-            {from: [5,0], to: [5,5], key: null, time: 300},
-            {from: [2,0], to: [2,7], key: 'left', time: 300}]
-        },
-        {
-            type: 'imp',
-            start: [910, 35],
-            health: 100,
-            animated: [
-                {key: ['left'], time: 260},
-                {key: null, time: 200},
-                {key: ['right', 'down'], time: 180},
-                {key: ['right'], time: 200},
-            ]
-        },
-        {
-            note: 'squirrel',
-            type: 'generic',
-            start: [200, 21],
-            health: 100,
-            interactive: false,
-            physics: false,
-            sprite: [
-                '/static/images/sprites/Squirrel Sprite Sheet_flipped.png',
-                '/static/images/sprites/Squirrel Sprite Sheet.png'
-            ],
-            speed: .75,
-            contact: {mt: 10, t: 10, r: 0, b: 3, l: 0},
-            frames: [8,7],
-            delay: 20,
-            animated: [
-                {from: [0,0], to: [0,4], key: null, time: 20},
-                {from: [1,0], to: [1,4], key: null, time: 20},
-                {from: [2,0], to: [2,7], key: 'right', time: 200},
-                {from: [3,0], to: [3,3], key: null, time: 100},
-                {from: [4,0], to: [4,1], key: null, time: 200},
-                {from: [2,0], to: [2,7], key: 'left', time: 10},
-                {from: [3,0], to: [3,3], key: null, time: 100},
-                {from: [4,0], to: [4,1], key: null, time: 200},
-                {from: [2,0], to: [2,7], key: 'right', time: 10},
-                {from: [0,0], to: [0,4], key: null, time: 20},
-                {from: [1,0], to: [1,4], key: null, time: 20},
-                {from: [2,0], to: [2,7], key: 'left', time: 200}
-            ]
-        }
-    ],
-    objectsHash: [
-        'x.15 1.gs 1.g 1.ge',
-        '',
-        '',
-        'x.15 1.gs 1.g 1.ge',
-        '',
-        '',
-        'x.15 4.gs 4.g 4.ge',
-        'x.30 4.gs 4.g 4.ge',
-        'x.30 4.e x.2 4.gs 4.g 4.ge',
-        'x.5 1.gs 1.g.5 1.ge x.4 1.gs 1.g.45 1.ge'
-    ],
-    images: {
-        background: [
-            {img: '/static/images/backgrounds/woods_1.png', index: 0},
-            {img: '/static/images/backgrounds/woods_2.png', index: 1},
-            {img: '/static/images/backgrounds/woods_3.png', index: 2}
-        ]
-    }
-}
+let world = await getLevel()
 
 async function initiate() {
     // Player Sprite
@@ -168,7 +75,7 @@ async function initiate() {
     
 }
 
-initiate(c, canvas, scrollOffset, finishLine)
+initiate()
 
 
 // Frame rate throtteling variable
@@ -187,10 +94,9 @@ function animate() {
         drawWorld(c, canvas, scrollOffset, finishLine)
         
         npcs.forEach(npc => {
-            if (npc.alive) {
+            if (npc.alive && npc.position.x + npc.width > 0 && npc.position.x < canvas.width) {
                 npc.update(c, canvas, gravity, terminalVelocity)
             }
-            
         })
 
         // Udates player

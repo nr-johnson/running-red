@@ -45,6 +45,13 @@ export function detectCollision(sprite, controls) {
                 } else {
                     sprite.position.y = block.position.y - sprite.contact.b
                 }
+                sprite.on = {
+                    type: block.type,
+                    left: block.position.x,
+                    right: block.position.x + block.width,
+                    block: block.blockEdge
+                }
+                
                 sprite.velocity.y = 0
                 sprite.stopped ? sprite.stopped = 3 : null
             }

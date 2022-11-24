@@ -6,6 +6,8 @@ export class Sprite {
         this.flipped = flipped
         this.frames = frames
 
+        this.color = false
+
         this.frames = frames
         this.width = this.image.width / frames[0]
         this.height = this.image.height / frames[1]
@@ -26,7 +28,12 @@ export class Sprite {
         }
         // If flipped is true, draw reversed image, else draw normal image
         // Frames are used to reverence image blocks within the sprite for animations
+        if (this.color) {
+            c.fillStyle = 'lightblue'
+            c.fillRect(position.x, position.y, this.width, this.height)
+        }
         c.drawImage(flipped && this.flipped ? this.flipped : this.image, frame[1] * this.width, frame[0] * this.height, this.width, this.height, position.x, position.y, this.width, this.height)
+        
     }
 
     isWithin(from, to) {

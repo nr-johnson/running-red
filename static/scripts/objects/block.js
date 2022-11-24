@@ -1,6 +1,9 @@
 // Blocks with collision
 export class Block {
-    constructor({  position, blocking, image, height, width}) {
+    constructor({ type, blockEdge, position, blocking, image, height, width}) {
+        
+        this.type = type
+        
         // Block location
         this.position = {
             x: position.x,
@@ -9,6 +12,7 @@ export class Block {
         
         // If object blocks from Y and X axis
         this.blocking = blocking
+        this.blockEdge = blockEdge
 
         // Platform image to be drawn
         this.image = image

@@ -19,6 +19,12 @@ export class Imp {
 
         this.stopped = 1
 
+        this.on = {
+            type: '',
+            left: 0,
+            right: 0,
+            block: []
+        }
         this.jumpHeight = 12
         this.jump = true
         this.speed = .75
@@ -198,9 +204,12 @@ export class Imp {
             
         } else if (action.key) {
             for (let i in action.key) {
+                const key = action.key[i]
                 this.keys[action.key[i]].pressed = true
             }
         }
+
+        this.detectWorld()
 
         if(this.progress > 0) {
             this.progress -= 5
@@ -231,6 +240,21 @@ export class Imp {
             this.progress = this.delay
         }
 
+        
+    }
+
+    detectWorld() {
+        if (this.on.block.includes('sprite')) {
+            if (this.keys.left.pressed && this.on.type == 'start') {
+                if (this.position.x + this.contact.l + this.velocity.x <= this.on.left) {
+                    this.keys.left.pressed = false
+                }
+            } else if (this.keys.right.pressed && this.on.type == 'end') {
+                if (this.position.x + this.contact.r + this.velocity.x >= this.on.right) {
+                    this.keys.right.pressed = false
+                }
+            }
+        }
         
     }
 }
