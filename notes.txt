@@ -1,2 +1,1 @@
 Bugs:
-Finish line changes when resizing the screen

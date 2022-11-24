@@ -25,14 +25,14 @@ export class Imp {
             right: 0,
             block: []
         }
-        this.jumpHeight = 12
+        this.jumpHeight = 14
         this.jump = true
-        this.speed = .75
+        this.speed = 1.5
         this.slow = .25
         this.defaultSpeed = this.speed
         this.running = false
         this.distracted = false
-        this.detectionRaius = 150
+        this.detectionRaius = 175
         this.alive = true
 
         this.position = {
@@ -244,6 +244,7 @@ export class Imp {
     }
 
     detectWorld() {
+        if (!this.on.block) return
         if (this.on.block.includes('sprite')) {
             if (this.keys.left.pressed && this.on.type == 'start') {
                 if (this.position.x + this.contact.l + this.velocity.x <= this.on.left) {
