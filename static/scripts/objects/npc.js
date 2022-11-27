@@ -1,92 +1,22 @@
-import { detectCollision, characterControl } from '/static/scripts/objects/objectTools.js'
-import { Sprite } from '/static/scripts/objects/sprite.js'
+import { Character } from '/static/scripts/objects/baseCharacter.js'
 
-export class Npc {
-    constructor({animated, delay, physics, speed, contact, interactive, start, health, sprite, frames}, canvas) {
-        
-        this.sprite = animated ? new Sprite(sprite[0], sprite[1], frames, [0,0]) : img
+export class Npc extends Character {
+    constructor(baseTraits, { animations, delay }, canvas) {
+        super(baseTraits, canvas)
 
-        this.height = sprite[0].height / frames[0]
-        this.width = sprite[0].width / frames[1]
-        this.speed = speed
-        this.defaultSpeed = speed
-        this.running = false
-        this.physics = physics
         this.alive = true
-
-        this.position = {
-            x: start[0],
-            y: canvas.height - this.height - start[1]
-        }
-        this.origin = {
-            x: this.position.x,
-            y: this.position.y
-        }
-        this.on = {
-            type: '',
-            left: 0,
-            right: 0
-        }
-        this.health = health ? health : 100
-        this.flipped = true
-        this.frame = [0,0]
-        this.frameDir = false
-        this.contact = {
-            mt: contact.mt,
-            t: contact.t,
-            r: this.width - contact.r,
-            b: this.height - contact.b,
-            l: contact.l
-        }
-
-        this.velocity = {
-            x: 0,
-            y: 0
-        }
+        this.distracted = false
         
-        this.interactive = interactive
-
-        this.animated = animated ? animated : null
-        this.keys = {
-            right: {
-                pressed: false
-            },
-            left: {
-                pressed: false
-            },
-            down : {
-                pressed: false
-            },
-            jump: {
-                pressed: false
-            }
-        }
+        this.defaultSpeed = this.speed
+        this.frameDir = false
+        this.animations = animations ? animations : null
+        this.stopped = 1
         this.sec = 0
         this.actionI = 0
         this.delay = delay
         this.progress = delay
-    }
-
-    flip() {
-        if (this.sprite.flipped) {
-            this.flipped = !this.flipped
-        }
-    }
-
-    reset() {
-        this.running = false
-        this.position = {
-            x: this.origin.x,
-            y: this.origin.y
-        }
-        this.health = 100
-        this.flipped = true
-        this.frame = [0,0]
-        this.frameDir = false
-        this.velocity = {
-            x: 0,
-            y: 0
-        }
+        this.tracking = false
+        
         this.keys = {
             right: {
                 pressed: false
@@ -94,46 +24,24 @@ export class Npc {
             left: {
                 pressed: false
             },
-            down : {
+            down: {
+                pressed: false
+            },
+            attack: {
                 pressed: false
             },
             jump: {
                 pressed: false
             }
         }
+        
+    }
+
+    refresh() {
+        this.stopped = 1
         this.sec = 0
         this.actionI = 0
         this.progress = this.delay
-    }
-
-    update(c, canvas, gravity, terminalVelocity) {
-        this.animated && this.action()        
-
-        this.sprite.frame = this.frame
-        this.position.y += this.velocity.y
-        this.position.x += this.velocity.x
-        if (this.physics) {
-            
-
-            if (this.position.y + this.contact.b + this.velocity.y < canvas.height) {
-                if (this.velocity.y >= terminalVelocity) {
-                    this.velocity.y = terminalVelocity
-                } else {
-                    this.velocity.y += gravity
-                }
-            } else {
-                this.alive = false
-            }
-        }        
-        this.sprite.draw(c, this.frame, this.flipped, this.position)
-        
-
-        if (this.physics) {
-            detectCollision(this, this.keys)
-        }
-        
-
-        characterControl(this, this.keys)
     }
 
     action() {
@@ -144,16 +52,19 @@ export class Npc {
             left: {
                 pressed: false
             },
-            down : {
+            down: {
+                pressed: false
+            },
+            attack: {
                 pressed: false
             },
             jump: {
                 pressed: false
             }
         }
-
-        if (this.animated[this.actionI].time < this.sec) {
-            if (this.actionI + 1 > this.animated.length - 1) {
+            
+        if (this.animations[this.actionI].time < this.sec) {
+            if (this.actionI + 1 > this.animations.length - 1) {
                 this.actionI = 0
             } else {
                 this.actionI += 1
@@ -163,24 +74,62 @@ export class Npc {
             this.sec++
         }
 
-        const action = this.animated[this.actionI]
-        this.speed = action.speed ? action.speed : this.defaultSpeed
-        if(this.progress > 0) {
-            this.progress -= 5
-        } else {
-            if (this.sprite.isWithin(action.from, action.to)) {
-                this.frame = this.sprite.nextFrame()
-            } else {
-                this.frame = action.from
+        const action = this.animations[this.actionI]
+        
+        if (action.key) {
+            for (let i in action.key) {
+                const key = action.key[i]
+                this.keys[action.key[i]].pressed = true
             }
-            this.progress = this.delay
+        }
+
+
+        
+    }
+
+    findTarget(get) {
+        const target = get.position.x + (get.width / 2)
+        const mid = this.position.x + (this.width / 2)
+        if(target < mid && target > mid - this.detectionRaius) {
+            this.tracking = true
+            this.keys.right.pressed = false
+            this.keys.down.pressed = false
+            if (target > mid - 15) {
+                this.keys.left.pressed = false
+            } else {
+                this.keys.left.pressed = true
+                
+            }
+            
+        } else if (target > mid && target < mid + this.detectionRaius) {
+            this.tracking = true
+            this.keys.left.pressed = false
+            this.keys.down.pressed = false
+            if (target < mid + 15) {
+                this.keys.right.pressed = false
+            } else {
+                this.keys.right.pressed = true
+                
+            }
+            
+        } else {
+            this.tracking = false
+        }
+    }
+
+    detectWorld() {
+        if (!this.on.block) return
+        if (this.on.block.includes('sprite')) {
+            if (this.keys.left.pressed && this.on.type == 'start') {
+                if (this.position.x + this.contact.l + this.velocity.x <= this.on.left) {
+                    this.keys.left.pressed = false
+                }
+            } else if (this.keys.right.pressed && this.on.type == 'end') {
+                if (this.position.x + this.contact.r + this.velocity.x >= this.on.right) {
+                    this.keys.right.pressed = false
+                }
+            }
         }
         
-        
-        
-
-        
-
-        action.key ? this.keys[action.key].pressed = true : null
     }
 }

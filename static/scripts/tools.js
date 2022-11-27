@@ -1,13 +1,8 @@
 import { Block } from '/static/scripts/objects/block.js'
 import { Background } from '/static/scripts/objects/background.js'
 import { setGameEnd } from '/static/scripts/main.js'
-import { Npc } from '/static/scripts/objects/npc.js'
 import { Imp } from '/static/scripts/objects/imp.js'
 import { Wall } from '/static/scripts/objects/invisibleWall.js'
-
-const guys = {
-    imp: Imp
-}
 
 
 // Creates a new image object for the canvas to draw
@@ -57,14 +52,13 @@ export function buildWorld(map, canvas) {
         
         map.npcs.forEach(async npc => {
             let guy
-            if (npc.type == 'generic') {
-                npc.sprite[0] = await newImage(npc.sprite[0])
-                npc.sprite[1] = npc.sprite[1].length > 0 ? await newImage(npc.sprite[1]) : null
-                guy = new Npc(npc, canvas)
-            } else {
-                guy = new guys[npc.type](npc, canvas)
+            if (npc.type == 'imp') {
+                guy = new Imp({ 
+                    images: [await newImage(npc.images[0]), await newImage(npc.images[1])],
+                    position: {x: npc.start[0], y: npc.start[1]},
+                    frames: npc.frames
+                }, npc, canvas)
             }
-            
             npcs.push(guy)
         })
         
@@ -72,14 +66,21 @@ export function buildWorld(map, canvas) {
     })
 }
 
-export function drawWorld(c, canvas, scroll, end) {
+export function drawWorld(c, canvas, scroll, end, terminalVelocity) {
     background.draw(c, canvas, scroll)
 
-    c.fillRect(end, canvas.height - 96, 24, 96)
     // Updates each platform
     blocks.forEach(block => {
-        block.draw(c, canvas, scroll)
-    })  
+        if (block.position.x + block.width > - 50 && block.position.x < canvas.width + 50) {
+            block.draw(c, canvas, scroll)
+        }
+        
+    }) 
+    npcs.forEach(npc => {
+        if (npc.alive && npc.position.x + npc.width > - 50 && npc.position.x < canvas.width + 50) {
+            npc.update(c, canvas, terminalVelocity)
+        }
+    })
     
 }
 
@@ -123,7 +124,7 @@ const addObjects = (levels, canvas) => {
                 }
                 if (dets[0].includes('p')) params.blockEdge.push('player')
                 if (dets[0].includes('s')) params.blockEdge.push('sprite')
-                console.log(params.blockEdge)
+                
                 if (dets[1] == 'e') {
                     blocks.push(new Wall(params))
                     progX = params.position.x + 24

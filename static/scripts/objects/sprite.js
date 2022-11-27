@@ -3,36 +3,39 @@ import { newImage } from '/static/scripts/tools.js'
 export class Sprite {
     constructor(img, flipped, frames, frame) {
         this.image = img
+        // this.image.src = img
         this.flipped = flipped
+        // this.flipped.src = flipped
+
+        // this.flipped.src = flipped
+
         this.frames = frames
 
-        this.color = false
+        this.color = true
 
         this.frames = frames
         this.width = this.image.width / frames[0]
         this.height = this.image.height / frames[1]
 
-        
-
         this.frame = frame ? frame : [0,0]
     }
 
-    async draw(c, frame, flipped, position) {
-        if (typeof this.image == 'string') {
-            this.image = await newImage(this.image)
-            this.width = this.image.width / this.frames[0]
-            this.height = this.image.height / this.frames[1]
-        }
-        if (typeof this.flipped == 'string') {
-            this.flipped = await newImage(this.flipped)
-        }
+    draw(c, flipped, position) {
+        // if (typeof this.image == 'string') {
+        //     this.image = await newImage(this.image)
+        //     this.width = this.image.width / this.frames[0]
+        //     this.height = this.image.height / this.frames[1]
+        // }
+        // if (typeof this.flipped == 'string') {
+        //     this.flipped = await newImage(this.flipped)
+        // }
         // If flipped is true, draw reversed image, else draw normal image
         // Frames are used to reverence image blocks within the sprite for animations
         if (this.color) {
-            c.fillStyle = 'lightblue'
+            c.fillStyle = '#ffffff50'
             c.fillRect(position.x, position.y, this.width, this.height)
         }
-        c.drawImage(flipped && this.flipped ? this.flipped : this.image, frame[1] * this.width, frame[0] * this.height, this.width, this.height, position.x, position.y, this.width, this.height)
+        c.drawImage(flipped && this.flipped ? this.flipped : this.image, this.frame[1] * this.width, this.frame[0] * this.height, this.width, this.height, position.x, position.y, this.width, this.height)
         
     }
 

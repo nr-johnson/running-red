@@ -24,7 +24,7 @@ const jumpHeight = 18
 export let finishLine = 1500 // Length to scroll before winning
 export const blockLeft = 100
 export const blockRight = Math.round(canvas.width - 200)
-const gravity = 1.75 // Fall speed
+export const gravity = 1.75 // Fall speed
 const terminalVelocity = 34
 let gameOver = false
 
@@ -37,7 +37,10 @@ export const keys = {
     left: {
         pressed: false
     },
-    down : {
+    down: {
+        pressed: false
+    },
+    attack: {
         pressed: false
     },
     draw: {
@@ -57,6 +60,7 @@ export const keys = {
 */
 
 export let player
+let imp
 let images = {}
 let world = await getLevel()
 
@@ -65,10 +69,18 @@ async function initiate() {
     const playerImg = await newImage('/static/images/red hood sprite.png')
     const playerFlipped = await newImage('/static/images/red hood sprite_flipped.png')
     
-    await buildWorld(world, canvas, images)
-    // Creates player
+    player = new Player({ 
+        images: [await newImage('/static/images/red hood sprite.png'), await newImage('/static/images/red hood sprite_flipped.png')],
+        position: {x: world.player.start[0], y: world.player.start[1]},
+        frames: [12,11],
+        frame: [0,0],
+        gravity: gravity
+    },
+    {
+        health: world.player.health
+    }, canvas)
 
-    player = new Player(playerImg, playerFlipped, world.player, canvas)
+    await buildWorld(world, canvas, images)  
 
     // Initiates the game
     animate()
@@ -85,22 +97,13 @@ function animate() {
     // Timeout used to slowdown framerate
     setTimeout(() => {
         requestAnimationFrame(animate);
-        
-        
-
         // Clears the previous frame
         c.clearRect(0,0,canvas.width, canvas.height)
 
-        drawWorld(c, canvas, scrollOffset, finishLine)
-        
-        npcs.forEach(npc => {
-            if (npc.alive && npc.position.x + npc.width > 0 && npc.position.x < canvas.width) {
-                npc.update(c, canvas, gravity, terminalVelocity)
-            }
-        })
+        drawWorld(c, canvas, scrollOffset, finishLine, terminalVelocity)
 
         // Udates player
-        player.update(c, gravity, terminalVelocity, canvas)
+        player.update(c, terminalVelocity, keys, canvas)
         // Marks game win
         if (scrollOffset >= finishLine && !gameOver) {
             gameOver = true
@@ -139,6 +142,7 @@ export function reset() {
 
 // Detects key presses
 window.addEventListener('keydown', ({ keyCode }) => {
+    // console.log(keyCode)
     switch (keyCode) {
         case 38:
         case 32:
@@ -154,9 +158,9 @@ window.addEventListener('keydown', ({ keyCode }) => {
             }
             break
         case 96:
-        case 81:
+        case 70:
             // numpad 0
-            // Q (Shoot)
+            // F (Shoot)
             if (player.sliding == 0) {
                 player.weaponState = 1
             }
@@ -164,6 +168,13 @@ window.addEventListener('keydown', ({ keyCode }) => {
             
             keys.draw.pressed = true
             break
+        case 67:
+        case 97:
+            // C
+            // numpad 1
+            keys.attack.pressed = true
+            break
+
         case 37:
         case 65:
             // A
@@ -231,9 +242,9 @@ window.addEventListener('keyup', ({ keyCode }) => {
             keys.jump.pressed = false
         
         case 96:
-        case 81:
+        case 70:
             // numpad 0
-            // Q (Shoot)
+            // F (Shoot)
             if (player.weaponState == 2) {
                 player.weaponState = 3
             } else {
@@ -242,6 +253,12 @@ window.addEventListener('keyup', ({ keyCode }) => {
             keys.draw.pressed = true
             break
 
+        case 67:
+        case 97:
+            // C
+            // numpad 1
+            keys.attack.pressed = false
+            break
     }
 
 })
