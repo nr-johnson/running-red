@@ -15,8 +15,11 @@ export class Character {
         this.jump = true
         this.falling = false
         this.running = false
+        this.damaging = 0
 
         this.frame = frame ? frame : [0,0]
+
+        this.projectiles = []
 
         this.flipped = false
         this.speed = 0
@@ -197,9 +200,6 @@ export class Character {
     }
 
     control(controls) {
-        // Imobilaze player if damage animation is playing
-        if (this.damaging > 0) return
-
         // Player movement and platform scrolling using player velocity
         // Moving to the right
         // If D is pressed and the player is < 60% away from right screen edge
@@ -231,14 +231,12 @@ export class Character {
             this.health = 100
         } else if (this.health + amnt <= 0) {
             this.health = 0
-            reset()
         } else {
             this.health += amnt
         }
     }
 
     revert() {
-        this.health = 100
         this.flipped = true
         this.running = false
         this.jump = true
@@ -257,6 +255,10 @@ export class Character {
             x: 0,
             y: 0
         }
+
+        this.projectiles.forEach(dart => {
+            dart.remove(this)
+        })
     }
 }
 

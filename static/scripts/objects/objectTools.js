@@ -141,12 +141,19 @@ export function scrollWorld(player, controls) {
         scrollOffset += adj
         player.running = true
         // Moves each platfrom
+        player.projectiles.forEach(dart => {
+            dart.position.x -= adj
+        })
+
         background.position.x -= adj
         blocks.forEach(block => {
             block.position.x -= adj
         })
         npcs.forEach(npc => {
             npc.position.x -= adj
+            npc.projectiles.forEach(dart => {
+                dart.position.x -= adj
+            })
         })
     // If A pressed and player is not at start
     } else if (((controls.left.pressed && player.weaponState == 0) || player.sliding < 0) && (scrollOffset - adj) > 0) {
@@ -154,11 +161,19 @@ export function scrollWorld(player, controls) {
         player.running = true
         // Moves each platform
         background.position.x += adj
+        
+        player.projectiles.forEach(dart => {
+            dart.position.x += adj
+        })
+
         blocks.forEach(block => {
             block.position.x += adj
         })
         npcs.forEach(npc => {
             npc.position.x += adj
+            npc.projectiles.forEach(dart => {
+                dart.position.x += adj
+            })
         })
     } else {
         player.running = false

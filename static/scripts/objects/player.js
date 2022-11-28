@@ -1,7 +1,8 @@
 import { Character } from '/static/scripts/objects/baseCharacter.js'
 import { scrollWorld } from '/static/scripts/objects/objectTools.js'
 import { blockLeft, blockRight, reset } from '/static/scripts/main.js'
-import { blocks } from '/static/scripts/tools.js'
+import { blocks, npcs, newImage } from '/static/scripts/tools.js'
+import { Projectile } from '/static/scripts/objects/projectile.js'
 
 export class Player extends Character {
     constructor(baseTraits, playerTraits, canvas) {
@@ -15,13 +16,19 @@ export class Player extends Character {
             l: 45
         }
 
+        this.arrow = [
+            '/static/images/projectiles/Arrow.png',
+            '/static/images/projectiles/Arrow_flipped.png'
+        ]
+
         this.health = playerTraits.health ? playerTraits.health : 100
         this.flipped = true
         this.running = false
         this.jump = true
         this.speed = 5
         this.attacking = false
-        this.attackAnim = [0,0]
+        this.hit = []
+        this.attackAnim = 0
         this.attackHold = false
         this.weaponState = 0
         this.sliding = 0
@@ -29,24 +36,45 @@ export class Player extends Character {
         this.damaging = 0
     }
 
-    update(c, terminalVelocity, keys, canvas) {
+    async update(c, terminalVelocity, keys, canvas) {
+        if (this.health <= 0) {
+            reset()
+        }
+
+        if (typeof this.arrow[0] == 'string') {
+            this.arrow[0] = await newImage(this.arrow[0])
+        }
+        if (typeof this.arrow[1] == 'string') {
+            this.arrow[1] = await newImage(this.arrow[1])
+        }
+
         this.keys = keys
 
         if (this.keys.attack.pressed) {
-            if (!this.attackHold) {
-                this.attackHold = new Date(Date.now())
-            }
-        } else if (this.attackHold) {
-            const elapsed = new Date(Date.now()) - this.attackHold
-            if(elapsed < 500) {
-                this.attacking = 'light'
-            } else {
-                this.attacking = 'heavy'
-            }
+            if (!this.attackHold) this.attacking = true
+            this.attackHold = true
+        } else {
             this.attackHold = false
         }
 
         this.setFrame()
+
+        if (this.weaponState == 3) {
+            this.weaponState = 0
+            console.log('firing')
+            const arrow = new Projectile({
+                speed: 20,
+                images: this.arrow,
+                position: {x: this.position.x + this.contact.l, y: this.position.y + this.contact.mt + 13}, 
+                source: 'player',
+                flipped: this.flipped,
+                damage: 15,
+                fired: true
+            })
+            this.projectiles.push(arrow)
+        }
+
+        this.attacking && this.hitTarget(5)
 
         // Resets jump
         if (this.velocity.y == 0 && !keys.jump.pressed) {
@@ -68,10 +96,15 @@ export class Player extends Character {
         this.draw(c, this.flipped, this.position)
         this.detectCollision(this, this.keys, blocks)
 
+        this.projectiles.forEach(arr => {
+            arr.update(c, canvas, this)
+        })
+
         if (this.position.y + this.contact.b >= canvas.height - 1) {
             reset()
         }
 
+        if (this.damaging > 0) return
         if (keys.left.pressed && this.position.x < blockLeft && this.damaging <= 0) {
             scrollWorld(this, this.keys)
         }else if (keys.right.pressed && this.position.x > blockRight && this.damaging <= 0) {
@@ -81,6 +114,7 @@ export class Player extends Character {
                 this.velocity.x = 0
                 scrollWorld(this, this.keys)
             } else {
+                // Imobilaze player if damage animation is playing
                 this.control(this.keys)
             }
         }
@@ -88,12 +122,33 @@ export class Player extends Character {
 
     reset() {
         this.revert()
-
+        this.health = 100
         this.speed = 5
         this.weaponState = 0
         this.sliding = 0
         this.fallDamage = 31
-        this.damaging = 0
+    }
+
+    hitTarget(damage) {
+        npcs.forEach(npc => {
+            if (!this.hit.includes(npc)) {
+                if (this.flipped) {
+                    if (npc.position.x + npc.contact.l < this.position.x + this.contact.r + 20
+                        && npc.position.x + npc.contact.r > this.position.x + (this.width / 2)    
+                    ) {
+                        this.hit += npc
+                        npc.takeDamage(damage, true)
+                    }
+                } else {
+                    if (npc.position.x + npc.contact.r > this.position.x + this.contact.l - 20
+                        && npc.position.x + npc.contact.l < this.position.x + (this.width / 2)
+                    ) {
+                        this.hit += npc
+                        npc.takeDamage(damage, false)
+                    }
+                }
+            }
+        })
     }
 
     setFrame() {
@@ -128,35 +183,35 @@ export class Player extends Character {
             this.sliding = 0
             this.nextFrame()
         } else if (this.attacking) {
+            this.sliding = 0
             // Attack animation
             this.velocity.x = 0
             let from = []
             let to = []
-            if (this.attacking == 'light') {
-                if (this.attackAnim[0] == 0) {
-                    from = [4,9]
-                    to = [5,2]
-                    this.attackAnim[0] = 1
-                } else if (this.attackAnim[0] == 1) {
-                    from = [5,3]
-                    to = [5,9]
-                    this.attackAnim[0] = 2
-                } else {
-                    from = [5,10]
-                    to = [6,7]
-                    this.attackAnim[0] = 0
-                }
-            } else if (this.attacking == 'heavy') {
 
+            if (this.attackAnim == 0) {
+                from = [4,9]
+                to = [5,2]
+            } else if (this.attackAnim == 1) {
+                from = [5,3]
+                to = [5,9]
+            } else {
+                from = [5,10]
+                to = [6,7]
             }
+
             if (this.isWithin(from, to)) {
                 this.nextFrame()
-            } else if (this.frame[1] >= to[1]) {
+            } else if(this.frame >= to) {
+                this.attackAnim > 1 ? this.attackAnim = 0 : this.attackAnim += 1
                 this.attacking = false
+                this.hit = []
+                this.frame = [0,0]
             } else {
                 this.frame = from
             }
         } else if (this.weaponState == 1 || this.weaponState == 2) {
+            this.sliding = 0
             // Weapon draw animation
             this.velocity.x = 0
             if(this.isWithin([2,1], [2,5])) {

@@ -77,8 +77,8 @@ export function drawWorld(c, canvas, scroll, end, terminalVelocity) {
         
     }) 
     npcs.forEach(npc => {
-        if (npc.alive && npc.position.x + npc.width > - 50 && npc.position.x < canvas.width + 50) {
-            npc.update(c, canvas, terminalVelocity)
+        if (npc.position.x + npc.width > - 50 && npc.position.x < canvas.width + 50) {
+            npc.alive && npc.update(c, canvas, terminalVelocity)
         }
     })
     

@@ -32,7 +32,7 @@ levels = {
             {
                 'type': 'imp',
                 'start': [910, 70],
-                'health': 100,
+                'health': 20,
                 'delay': 12,
                 'images': ['/static/images/sprites/Imp Sprite Sheet_flipped.png', '/static/images/sprites/Imp Sprite Sheet.png'],
                 'frames': [8,6],

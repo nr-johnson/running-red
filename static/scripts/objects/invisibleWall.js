@@ -1,6 +1,9 @@
 // Blocks with collision
 export class Wall {
     constructor({  position, blocking, height, width}) {
+
+        this.invisible = true
+
         // Block location
         this.position = {
             x: position.x,

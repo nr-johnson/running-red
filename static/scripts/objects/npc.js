@@ -38,6 +38,7 @@ export class Npc extends Character {
     }
 
     refresh() {
+        this.alive = true
         this.stopped = 1
         this.sec = 0
         this.actionI = 0
@@ -94,7 +95,7 @@ export class Npc extends Character {
             this.tracking = true
             this.keys.right.pressed = false
             this.keys.down.pressed = false
-            if (target > mid - 15) {
+            if (target > mid - 20) {
                 this.keys.left.pressed = false
             } else {
                 this.keys.left.pressed = true
@@ -105,7 +106,7 @@ export class Npc extends Character {
             this.tracking = true
             this.keys.left.pressed = false
             this.keys.down.pressed = false
-            if (target < mid + 15) {
+            if (target < mid + 20) {
                 this.keys.right.pressed = false
             } else {
                 this.keys.right.pressed = true
@@ -115,6 +116,17 @@ export class Npc extends Character {
         } else {
             this.tracking = false
         }
+    }
+
+    takeDamage(amnt, right) {
+        this.damaging += amnt * 2
+        if (right) {
+            this.position.x += 30
+        } else {
+            this.position.x -= 30
+        }
+        
+        this.updateHealth(amnt * -1)
     }
 
     detectWorld() {
