@@ -1,5 +1,5 @@
 import { Character } from '/static/scripts/objects/baseCharacter.js'
-import { scrollWorld } from '/static/scripts/objects/objectTools.js'
+import { scrollWorld, slideWorld } from '/static/scripts/objects/objectTools.js'
 import { blockLeft, blockRight, reset } from '/static/scripts/main.js'
 import { blocks, npcs, newImage } from '/static/scripts/tools.js'
 import { Projectile } from '/static/scripts/objects/projectile.js'
@@ -22,6 +22,7 @@ export class Player extends Character {
         ]
 
         this.health = playerTraits.health ? playerTraits.health : 100
+        this.jumpHeight = 18
         this.flipped = true
         this.running = false
         this.jump = true
@@ -37,6 +38,7 @@ export class Player extends Character {
     }
 
     async update(c, terminalVelocity, keys, canvas) {
+
         if (this.health <= 0) {
             reset()
         }
@@ -50,7 +52,7 @@ export class Player extends Character {
 
         this.keys = keys
 
-        if (this.keys.attack.pressed) {
+        if (this.keys.attack.pressed && this.velocity.y == 0) {
             if (!this.attackHold) this.attacking = true
             this.attackHold = true
         } else {
@@ -61,7 +63,6 @@ export class Player extends Character {
 
         if (this.weaponState == 3) {
             this.weaponState = 0
-            console.log('firing')
             const arrow = new Projectile({
                 speed: 20,
                 images: this.arrow,
@@ -69,7 +70,8 @@ export class Player extends Character {
                 source: 'player',
                 flipped: this.flipped,
                 damage: 15,
-                fired: true
+                fired: true,
+                solid: true
             })
             this.projectiles.push(arrow)
         }
@@ -94,7 +96,9 @@ export class Player extends Character {
 
         this.calculateGravity(canvas, terminalVelocity)
         this.draw(c, this.flipped, this.position)
+        slideWorld(this, canvas, terminalVelocity)
         this.detectCollision(this, this.keys, blocks)
+        
 
         this.projectiles.forEach(arr => {
             arr.update(c, canvas, this)
@@ -103,6 +107,8 @@ export class Player extends Character {
         if (this.position.y + this.contact.b >= canvas.height - 1) {
             reset()
         }
+
+        
 
         if (this.damaging > 0) return
         if (keys.left.pressed && this.position.x < blockLeft && this.damaging <= 0) {
@@ -132,18 +138,22 @@ export class Player extends Character {
     hitTarget(damage) {
         npcs.forEach(npc => {
             if (!this.hit.includes(npc)) {
+                if(npc.position.y + npc.contact.b < this.position.y + this.contact.mt
+                    || npc.position.y + npc.contact.t > this.position.y + this.contact.b) 
+                    return
+
                 if (this.flipped) {
-                    if (npc.position.x + npc.contact.l < this.position.x + this.contact.r + 20
+                    if (npc.position.x + npc.contact.l < this.position.x + this.contact.r + 18
                         && npc.position.x + npc.contact.r > this.position.x + (this.width / 2)    
                     ) {
-                        this.hit += npc
+                        this.hit.push(npc)
                         npc.takeDamage(damage, true)
                     }
                 } else {
-                    if (npc.position.x + npc.contact.r > this.position.x + this.contact.l - 20
+                    if (npc.position.x + npc.contact.r > this.position.x + this.contact.l - 18
                         && npc.position.x + npc.contact.l < this.position.x + (this.width / 2)
                     ) {
-                        this.hit += npc
+                        this.hit.push(npc)
                         npc.takeDamage(damage, false)
                     }
                 }

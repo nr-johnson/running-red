@@ -1,37 +1,59 @@
 import { Npc } from '/static/scripts/objects/npc.js'
-import { blocks, npcs } from '/static/scripts/tools.js'
+import { blocks, npcs, newImage } from '/static/scripts/tools.js'
 import { player } from '/static/scripts/main.js'
+import { Projectile } from '/static/scripts/objects/projectile.js'
  
 export class Imp extends Npc {
-    constructor(baseTraits, { animations, delay, health }, canvas) {
-        super(baseTraits, { animations, delay }, canvas)
+    constructor(baseTraits, { clas, animations, delay, health }, canvas) {
+        super(baseTraits, { clas, animations, delay }, canvas)
         
         this.health = health ? health : 25
         this.speed = 1.25
         this.defaultSpeed = this.speed
         this.jumpHeight = 14
         this.slow = .25
-        this.detectionRaius = 225
+        this.detectionRaius = 350
         this.interactive = true
         this.physics = true
+        this.trackingStop = 40
 
-        this.attackDelay = 2
+        this.fireball = [
+            '/static/images/projectiles/Fireball.png',
+            '/static/images/projectiles/Fireball_flipped.png'
+        ]
+
+        this.attackDelay = 12
         this.attackTime = false
         
-        this.contact = {mt: 10, t: 10, r: 30, b: 35, l: 15}
+        this.contact = {mt: 10, t: 10, r: 30, b: 36, l: 15}
 
     }
 
-    update(c, canvas, terminalVelocity) {
+    async update(c, canvas, terminalVelocity) {
         if (!this.alive) return
         if (this.health <= 0) {
-            this.deathAnim()
+            this.damaging = 0
+            this.velocity.x = 0
             this.draw(c)
+            this.calculateGravity(canvas, terminalVelocity)
+            this.detectCollision(this, this.keys, blocks)
+            this.deathAnim()
+            
             return
         }
+
+        if (typeof this.fireball[0] == 'string') {
+            this.fireball[0] = await newImage(this.fireball[0])
+        }
+        if (typeof this.fireball[1] == 'string') {
+            this.fireball[1] = await newImage(this.fireball[1])
+        }
+
         this.findTarget(player)
         
         this.tracking ? this.attack(player) : this.action()
+
+        this.detectWorld()
 
         this.setFrame()
 
@@ -39,6 +61,8 @@ export class Imp extends Npc {
             this.jump = false
             this.stopped = 1
             this.velocity.y -= this.jumpHeight
+            this.keys.left.pressed = false
+            this.keys.right.pressed = false
         }
 
         this.physics && this.calculateGravity(canvas, terminalVelocity)
@@ -47,10 +71,14 @@ export class Imp extends Npc {
                 
         this.physics && this.detectCollision(this, this.keys, blocks)
 
+        this.projectiles.forEach(dart => {
+            dart.update(c, canvas, this)
+        })
+
         if (this.stopped == 3) {
             this.jump = true
         }
-        this.detectWorld()
+        
         this.control(this.keys)
     }
 
@@ -70,6 +98,13 @@ export class Imp extends Npc {
         }
         if (!this.attackTime) {
             this.attackTime = new Date(Date.now())           
+        } else if (inRange) {
+            const now = new Date(Date.now())
+            if (now - this.attackTime >= this.attackDelay * 100) {
+                this.attacking = true
+                this.keys.left.pressed = false
+                this.keys.right.pressed = false
+            }
         }
     }
 
@@ -100,7 +135,28 @@ export class Imp extends Npc {
         if(this.progress > 0) {
             this.progress -= 5
         } else {
-            if (this.damaging > 0) {
+            if (this.attacking) {
+                if (this.isWithin([2,3], [2,4])) {
+                    this.attackTime = new Date(Date.now())
+                    const fire = new Projectile({
+                        speed: 15,
+                        images: this.fireball,
+                        position: {x: this.position.x + this.contact.l, y: this.position.y + this.contact.mt + 13}, 
+                        source: 'npc',
+                        flipped: this.flipped,
+                        damage: 15,
+                        fired: true,
+                        solid: false
+                    })
+                    this.projectiles.push(fire)
+                    this.attacking = false
+                    this.nextFrame()
+                } else if (this.isWithin([2,0], [2,3])) {
+                    this.nextFrame()
+                } else {
+                    this.frame = [2,0]
+                }
+            } else if (this.damaging > 0) {
                 if (this.isWithin([3,0], [3,3])) {
                     this.nextFrame()
                 } else {
@@ -134,6 +190,7 @@ export class Imp extends Npc {
     }
 
     reset() {
+        this.deathFrame = false
         this.health = 25
         this.revert()
         this.refresh()

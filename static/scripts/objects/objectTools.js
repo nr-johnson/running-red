@@ -1,5 +1,5 @@
 import { finishLine } from '/static/scripts/main.js'
-import { blocks, npcs, background } from '/static/scripts/tools.js'
+import { blocks, npcs, ghosts, background } from '/static/scripts/tools.js'
 
 // spriteect collision
 // Ok... Phew... Lots of conditionals here
@@ -137,7 +137,7 @@ export function scrollWorld(player, controls) {
     const val = player.sliding > 0 ? player.sliding : player.sliding * -1
     const adj = player.sliding != 0 ? player.speed * (val / 10) : player.speed
 
-    if (((controls.right.pressed && player.weaponState == 0) || player.sliding > 0) && (scrollOffset + adj) < finishLine + 10) {
+    if (((controls.right.pressed && player.weaponState == 0) || player.sliding > 0) && (scrollOffset + adj) < finishLine + 10 && player.flipped) {
         scrollOffset += adj
         player.running = true
         // Moves each platfrom
@@ -148,6 +148,9 @@ export function scrollWorld(player, controls) {
         background.position.x -= adj
         blocks.forEach(block => {
             block.position.x -= adj
+        })
+        ghosts.forEach(ghst => {
+            ghst.position.x -= adj
         })
         npcs.forEach(npc => {
             npc.position.x -= adj
@@ -169,6 +172,9 @@ export function scrollWorld(player, controls) {
         blocks.forEach(block => {
             block.position.x += adj
         })
+        ghosts.forEach(ghst => {
+            ghst.position.x += adj
+        })
         npcs.forEach(npc => {
             npc.position.x += adj
             npc.projectiles.forEach(dart => {
@@ -177,6 +183,78 @@ export function scrollWorld(player, controls) {
         })
     } else {
         player.running = false
+    }
+}
+
+let slideOffset = 0
+let pass = 2
+let slideStop = 0
+let change = 0
+export function slideWorld(player, canvas, terminalVelocity) {
+    const ceil = canvas.height / 4
+    const pTop = player.position.y + player.contact.t
+    const pBot = player.position.y + player.contact.b
+    const floor = canvas.height - (canvas.height / 6)
+    change = pass
+
+    const slide = () => {
+        if (slideOffset + change < 0) {
+            change = slideOffset * -1
+            slideOffset = 0
+        } else {
+            slideOffset += change
+        }
+
+        player.position.y += change
+        if (pBot > floor && slideOffset > 0) player.velocity.y = 0
+
+        player.projectiles.forEach(dart => {
+            dart.position.y += change
+        })
+
+        npcs.forEach(npc => {
+            npc.position.y += change
+            npc.projectiles.forEach(dart => {
+                dart.position.y += change
+            })
+        })
+
+        ghosts.forEach(ghst => {
+            ghst.position.y += change
+        })
+
+        blocks.forEach(block => {
+            block.position.y += change
+        })
+    }
+
+
+    if (player.velocity.y <= 1.75) pass = 2
+
+    if (pTop > ceil && slideOffset == 0) return
+
+    
+    // if (pTop < ceil) player.position.y = ceil - player.contact.t
+    
+    if ((pTop < ceil)
+        || (player.position.y + player.height > floor && slideOffset > 0)
+    ) {
+        slideStop == 0 ? slideStop = player.jumpHeight : null
+
+        pass < terminalVelocity ? pass += 6 : pass = terminalVelocity
+        if (pTop > ceil) {
+            change = change * -1
+        }
+
+        slide()
+    } else if (slideStop > 0) {
+        if (pTop < canvas.height / 2) {
+            change = slideStop / 2
+            slideStop--
+            slide()
+        } else {
+            slideStop = 0
+        }
     }
 }
 

@@ -3,6 +3,7 @@ import { Background } from '/static/scripts/objects/background.js'
 import { setGameEnd } from '/static/scripts/main.js'
 import { Imp } from '/static/scripts/objects/imp.js'
 import { Wall } from '/static/scripts/objects/invisibleWall.js'
+import { Ghost } from '/static/scripts/objects/ghost.js'
 
 
 // Creates a new image object for the canvas to draw
@@ -33,6 +34,7 @@ export function sizeWindow(canvas, blockRight) {
 
 export const blocks = []
 export const npcs = []
+export const ghosts = []
 export const background = new Background()
 
 export function buildWorld(map, canvas) {
@@ -61,6 +63,15 @@ export function buildWorld(map, canvas) {
             }
             npcs.push(guy)
         })
+
+        map.ghosts.forEach(async ghst => {
+            ghosts.push(new Ghost({
+                images: [await newImage(ghst.images[0]), await newImage(ghst.images[1])],
+                position: {x: ghst.start[0], y: ghst.start[1]},
+                frames: ghst.frames,
+                frame: ghst.frame ? ghst.frame : null
+            }, ghst, canvas))
+        })
         
         resolve()
     })
@@ -71,17 +82,24 @@ export function drawWorld(c, canvas, scroll, end, terminalVelocity) {
 
     // Updates each platform
     blocks.forEach(block => {
-        if (block.position.x + block.width > - 50 && block.position.x < canvas.width + 50) {
+        if (block.position.x + block.width > 0 && block.position.x < canvas.width && block.position.y + block.height > 0 && block.position.y < canvas.height) {
             block.draw(c, canvas, scroll)
         }
         
-    }) 
+    })
+
+    ghosts.forEach(ghst => {
+        if (ghst.position.x + ghst.width > 0 && ghst.position.x < canvas.width && ghst.position.y + ghst.height > 0 && ghst.position.y < canvas.height) {
+            ghst.update(c)
+        }
+    })
+
     npcs.forEach(npc => {
-        if (npc.position.x + npc.width > - 50 && npc.position.x < canvas.width + 50) {
+        const dist = 150
+        if (npc.position.x + npc.width > dist * -1 && npc.position.x < canvas.width + dist && npc.position.y + npc.height > dist * -1 && npc.position.y < canvas.height + dist) {
             npc.alive && npc.update(c, canvas, terminalVelocity)
         }
     })
-    
 }
 
 const images = {}

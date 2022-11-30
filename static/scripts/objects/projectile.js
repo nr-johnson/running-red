@@ -1,11 +1,14 @@
 import { npcs, blocks } from '/static/scripts/tools.js'
+import { player } from '/static/scripts/main.js'
 
 export class Projectile {
-    constructor({ speed, images, position, source, flipped, damage, fired }) {
+    constructor({ speed, images, position, source, flipped, damage, fired, solid }) {
         
         this.images = images
         this.speed = speed
         this.source = source
+
+        this.solid = solid
 
         this.fired = fired
         this.stopped = false
@@ -30,7 +33,7 @@ export class Projectile {
         this.draw(c)
 
         if (this.stopped) {
-            this.stoppedFor >= 120 && this.remove(shooter)
+            this.stoppedFor >= 500 && this.remove(shooter)
             this.stoppedFor++
         }
 
@@ -49,16 +52,26 @@ export class Projectile {
                         || this.position.x + this.width + this.speed >= block.position.x)
                         && this.position.x + block.width < block.position.x + block.width
                     ) {
-                        this.position.x = block.position.x - this.width + 3
-                        this.stopped = true
+                        if (this.solid) {
+                            this.position.x = block.position.x - this.width + 3
+                            this.stopped = true
+                        } else {
+                            this.remove(shooter)
+                        }
+                        
                     }
                 } else {
                     if ((this.position.x <= block.position.x + block.width
                         || this.position.x - this.speed <= block.position.x + block.width)
                         && this.position.x + this.width > block.position.x
                     ) {
-                        this.position.x = block.position.x + block.width - 3
-                        this.stopped = true
+                        if (this.solid) {
+                            this.position.x = block.position.x + block.width - 3
+                            this.stopped = true
+                        } else {
+                            this.remove(shooter)
+                        }
+                        
                     }
                 }
             }
@@ -67,28 +80,11 @@ export class Projectile {
         if (this.source == 'player') {
             if (this.stopped) return
             npcs.forEach(npc => {
-                if(npc.alive
-                    && this.position.y >= npc.position.y + npc.contact.t
-                    && this.position.y + this.height <= npc.position.y + npc.contact.b
-                ) {
-                    if (this.flipped) {
-                        if (this.position.x + this.width >= npc.position.x + npc.contact.l
-                            && this.position.x + this.width < npc.position.x + npc.width    
-                        ) {
-                            npc.takeDamage(this.damage, true)
-                            this.remove(shooter)
-                        }
-                    } else {
-                        if (this.position.x <= npc.position.x + npc.contact.r
-                            && this.position.x > npc.position.x + npc.contact.l
-                        ) {
-                            npc.takeDamage(this.damage, false)
-                            this.remove(shooter)
-                        }
-                    }
-                }
-                
+                if (npc.clas != 'enemy' || !npc.alive) return
+                this.isHit(npc, shooter)                
             });
+        } else if (this.source == 'npc') {
+            this.isHit(player, shooter)
         }
 
         if (this.stopped) return
@@ -96,6 +92,28 @@ export class Projectile {
             this.position.x += this.speed
         } else {
             this.position.x -= this.speed
+        }
+    }
+
+    isHit(target, shooter) {
+        if(this.position.y >= target.position.y + target.contact.t
+            && this.position.y + this.height <= target.position.y + target.contact.b
+        ) {
+            if (this.flipped) {
+                if (this.position.x + this.width >= target.position.x + target.contact.l
+                    && this.position.x + this.width < target.position.x + target.width    
+                ) {
+                    target.takeDamage(this.damage, true)
+                    this.remove(shooter)
+                }
+            } else {
+                if (this.position.x <= target.position.x + target.contact.r
+                    && this.position.x > target.position.x + target.contact.l
+                ) {
+                    target.takeDamage(this.damage, false)
+                    this.remove(shooter)
+                }
+            }
         }
     }
 

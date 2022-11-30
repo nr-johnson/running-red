@@ -1,6 +1,6 @@
 import { Player } from '/static/scripts/objects/player.js'
 import { renderUI } from '/static/scripts/UI/uiMain.js'
-import { newImage, buildWorld, drawWorld, blocks, npcs, getLevel } from '/static/scripts/tools.js'
+import { newImage, buildWorld, drawWorld, blocks, npcs, ghosts, getLevel } from '/static/scripts/tools.js'
 import { scrollOffset, resetScroll } from '/static/scripts/objects/objectTools.js'
 
 // Canvas div
@@ -20,12 +20,11 @@ canvas.height = win.y
 
 // win = sizeWindow(canvas)
 
-const jumpHeight = 18
 export let finishLine = 1500 // Length to scroll before winning
 export const blockLeft = 100
 export const blockRight = Math.round(canvas.width - 200)
 export const gravity = 1.75 // Fall speed
-const terminalVelocity = 34
+const terminalVelocity = 20
 let gameOver = false
 
 
@@ -100,7 +99,10 @@ function animate() {
         // Clears the previous frame
         c.clearRect(0,0,canvas.width, canvas.height)
 
+        
+
         drawWorld(c, canvas, scrollOffset, finishLine, terminalVelocity)
+        
 
         // Udates player
         player.update(c, terminalVelocity, keys, canvas)
@@ -136,6 +138,9 @@ export function reset() {
     npcs.forEach(npc => {
         npc.reset()
     })
+    ghosts.forEach(ghst => {
+        ghst.reset()
+    })
 }
 
 
@@ -153,8 +158,9 @@ window.addEventListener('keydown', ({ keyCode }) => {
             keys.jump.pressed = true
             if (player.velocity.y == 0 && player.jump) {
                 player.jump = false
-                player.velocity.y -= jumpHeight
-                // player.sliding > 0 ? player.velocity.x += 10 : player.sliding < 0 ? player.velocity.x -= 10 : null
+                player.velocity.y -= player.jumpHeight
+                player.attacking = false
+                player.weaponState = 0
             }
             break
         case 96:
@@ -168,9 +174,9 @@ window.addEventListener('keydown', ({ keyCode }) => {
             
             keys.draw.pressed = true
             break
-        case 67:
+        case 69:
         case 97:
-            // C
+            // E
             // numpad 1
             keys.attack.pressed = true
             break
@@ -253,9 +259,9 @@ window.addEventListener('keyup', ({ keyCode }) => {
             keys.draw.pressed = true
             break
 
-        case 67:
+        case 69:
         case 97:
-            // C
+            // E
             // numpad 1
             keys.attack.pressed = false
             break

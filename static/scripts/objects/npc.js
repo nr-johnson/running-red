@@ -1,8 +1,10 @@
 import { Character } from '/static/scripts/objects/baseCharacter.js'
 
 export class Npc extends Character {
-    constructor(baseTraits, { animations, delay }, canvas) {
+    constructor(baseTraits, { clas, animations, delay }, canvas) {
         super(baseTraits, canvas)
+
+        this.clas = clas ? clas : null
 
         this.alive = true
         this.distracted = false
@@ -10,7 +12,11 @@ export class Npc extends Character {
         this.defaultSpeed = this.speed
         this.frameDir = false
         this.animations = animations ? animations : null
+
+        // Indicates from which direction the npc was stopped from
+        // 1 is none, 2 is from the right, 3 is from the bottom, 4 is from the left
         this.stopped = 1
+        
         this.sec = 0
         this.actionI = 0
         this.delay = delay
@@ -79,7 +85,6 @@ export class Npc extends Character {
         
         if (action.key) {
             for (let i in action.key) {
-                const key = action.key[i]
                 this.keys[action.key[i]].pressed = true
             }
         }
@@ -91,42 +96,60 @@ export class Npc extends Character {
     findTarget(get) {
         const target = get.position.x + (get.width / 2)
         const mid = this.position.x + (this.width / 2)
+        const stop = this.trackingStop ? this.trackingStop : 20
+
+        if(this.attacking) return
+
+        // get.position.y + get.contact.t > this.position.y + this.height
+        // get.position.y + get.contact.b < this.position.y
+        if(get.position.y + get.contact.b < (this.position.y + this.contact.t) - 48
+            || get.position.y + get.contact.t > this.position.y + this.contact.b
+        ) {
+            this.tracking = false
+            return
+        }
+
         if(target < mid && target > mid - this.detectionRaius) {
             this.tracking = true
             this.keys.right.pressed = false
             this.keys.down.pressed = false
-            if (target > mid - 20) {
+
+            if (target > mid - stop + 5 && this.jump
+                && this.position.x + this.contact.l < get.position.x + get.contact.r
+            ) {
+                this.keys.right.pressed = true
+            } else if ((target > mid - stop
+                || (this.on.stype == 'start' && this.on.block.includes('sprite')))
+                && this.position.y + this.contact.b == get.position.y + get.contact.b
+            ) {
+                this.keys.right.pressed = false
                 this.keys.left.pressed = false
+                this.flipped = false
             } else {
                 this.keys.left.pressed = true
-                
             }
-            
         } else if (target > mid && target < mid + this.detectionRaius) {
             this.tracking = true
             this.keys.left.pressed = false
             this.keys.down.pressed = false
-            if (target < mid + 20) {
+
+            if (target < mid + stop - 5 && this.jump
+                && this.position.x + this.contact.r > get.position.x + get.contact.l
+            ) {
+                this.keys.left.pressed = true
+            } else if ((target < mid + stop 
+                || (this.on.stype == 'end' && this.on.block.includes('sprite')))
+                && this.position.y + this.contact.b == get.position.y + get.contact.b
+            ) {
                 this.keys.right.pressed = false
+                this.keys.left.pressed = false
+                this.flipped = true
             } else {
                 this.keys.right.pressed = true
-                
             }
-            
         } else {
             this.tracking = false
         }
-    }
-
-    takeDamage(amnt, right) {
-        this.damaging += amnt * 2
-        if (right) {
-            this.position.x += 30
-        } else {
-            this.position.x -= 30
-        }
-        
-        this.updateHealth(amnt * -1)
     }
 
     detectWorld() {
@@ -135,10 +158,12 @@ export class Npc extends Character {
             if (this.keys.left.pressed && this.on.type == 'start') {
                 if (this.position.x + this.contact.l + this.velocity.x <= this.on.left) {
                     this.keys.left.pressed = false
+                    this.damaging > 0 ? this.velocity.x = 0 : null
                 }
             } else if (this.keys.right.pressed && this.on.type == 'end') {
                 if (this.position.x + this.contact.r + this.velocity.x >= this.on.right) {
                     this.keys.right.pressed = false
+                    this.damaging > 0 ? this.velocity.x = 0 : null
                 }
             }
         }

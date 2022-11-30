@@ -1,3 +1,5 @@
+import { canvas } from '/static/scripts/main.js'
+
 // Blocks with collision
 export class Block {
     constructor({ type, blockEdge, position, blocking, image, height, width}) {
@@ -7,7 +9,7 @@ export class Block {
         // Block location
         this.position = {
             x: position.x,
-            y: position.y
+            y: canvas.height - position.y
         }
         
         // If object blocks from Y and X axis
@@ -23,13 +25,12 @@ export class Block {
         // Original values entered for position. Used to calculate position on window resize
         this.origin = {
             x: position.x,
-            y: position.y
+            y: canvas.height - this.position.y
         }
     }
 
     // Calculates position and if the image is valid, draws the platform
     draw(c, canvas) {
-        this.position.y = canvas.height - this.origin.y
         if (this.image) {
             // Only draws the image if it's in view
             if (this.position.x + this.width > 0 && this.position.x < canvas.width) {

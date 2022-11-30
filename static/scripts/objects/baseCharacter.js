@@ -66,6 +66,7 @@ export class Character {
     calculateGravity(canvas, terminalVelocity) {
         this.position.y += this.velocity.y
         this.position.x += this.velocity.x
+        
         if (this.position.y + this.contact.b + this.velocity.y < canvas.height) {
             if (this.velocity.y >= terminalVelocity) {
                 this.velocity.y = terminalVelocity
@@ -133,31 +134,31 @@ export class Character {
             // If contact from left of spriteect
             if (block.blocking.l) {
                 if(sprite.velocity.x > 0 || controls.right.pressed) {
-                    if ((sprite.position.x + sprite.contact.r >= block.position.x
-                        || sprite.position.x + sprite.contact.r + sprite.velocity.x > block.position.x)
+                    if ((sprite.position.x + sprite.contact.r >= block.position.x - 1
+                        || sprite.position.x + sprite.contact.r + sprite.velocity.x > block.position.x - 1)
                         && sprite.position.x + sprite.contact.l < block.position.x + 10
                         && top < block.position.y + block.height
                         && btm > block.position.y
                     ) {
                         sprite.running = false
-                        sprite.position.x = block.position.x - sprite.width + (sprite.width - sprite.contact.r) - 1
+                        sprite.position.x = block.position.x - sprite.width + (sprite.width - sprite.contact.r) - 2
                         sprite.sliding = false
                         sprite.velocity.x = 0
                         sprite.stopped ? sprite.stopped = 4 : null
                     }
                 }
             }  
-                // If contact from right of spriteect
+                // If contact from right of sprite
             if (block.blocking.r) {
                 if (sprite.velocity.x < 0 || controls.left.pressed) {
-                    if ((sprite.position.x + sprite.contact.l <= block.position.x + block.width
-                        || sprite.position.x + sprite.contact.l - sprite.velocity.x < block.position.x + block.width)
+                    if ((sprite.position.x + sprite.contact.l <= block.position.x + block.width + 1
+                        || sprite.position.x + sprite.contact.l - sprite.velocity.x < block.position.x + block.width + 1)
                         && sprite.position.x + sprite.contact.r > block.position.x + block.width - 10
                         && top < block.position.y + block.height
                         && btm > block.position.y
                     ) {
                         sprite.running = false
-                        sprite.position.x = block.position.x + block.width - sprite.contact.l + 1
+                        sprite.position.x = block.position.x + block.width - sprite.contact.l + 2
                         sprite.sliding = false
                         sprite.velocity.x = 0
                         sprite.stopped ? sprite.stopped = 2 : null
@@ -226,6 +227,18 @@ export class Character {
         }
     }
 
+    takeDamage(amnt, right) {
+        if (this.health <= 0) return
+        this.damaging += amnt
+        if (right) {
+            this.velocity.x += 23
+        } else {
+            this.velocity.x -= 23
+        }
+        
+        this.updateHealth(amnt * -1)
+    }
+
     updateHealth(amnt) {
         if (this.health + amnt >= 100) {
             this.health = 100
@@ -242,6 +255,7 @@ export class Character {
         this.jump = true
         this.falling = false
         this.attacking = false
+        this.damaging = 0
 
         // Position
         this.position = {
