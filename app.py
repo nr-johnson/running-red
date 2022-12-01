@@ -9,6 +9,7 @@ levels = {
             'start': [100, 130],
             'health': 100
         },
+        'sounds': ['la2','la3','la4','la5','la1'],
         'objectsHash': [
             'x.15 1s.gs 1.g.10 1s.ge',
             '',
@@ -31,10 +32,10 @@ levels = {
             'x.15 1.gs 1.g 1.ge',
             'x.23 1.gs 1.g 1.ge',
             '',
-            'x.15 4.gs 4.g 4.ge',
+            '',
             'x.30 4.gs 4.g 4.ge',
             '',
-            'x.5 1s.gs 1.g.5 1s.ge x.4 1s.gs 1.g.45 1s.ge 4.e'
+            'x.5 1s.gs 1.g.5 1s.ge x.4 1s.gs 1.g.10 1s.ge x.4 1.gs 1.g.2 1.ge'
         ],
         'images': {
             'background': [
@@ -61,6 +62,21 @@ levels = {
             },
             {
                 'type': 'imp',
+                'start': [820, 70],
+                'health': 20,
+                'clas': 'enemy',
+                'delay': 12,
+                'images': ['/static/images/sprites/Imp Sprite Sheet_flipped.png', '/static/images/sprites/Imp Sprite Sheet.png'],
+                'frames': [8,6],
+                'animations': [
+                    {'key': ['right'], 'time': 260},
+                    {'key': False, 'time': 200},
+                    {'key': ['left', 'down'], 'time': 180},
+                    {'key': ['left'], 'time': 200},
+                ]
+            },
+            {
+                'type': 'imp',
                 'start': [400, 700],
                 'health': 20,
                 'clas': 'enemy',
@@ -78,7 +94,7 @@ levels = {
         'ghosts': [
             {
                 'note': 'cat',
-                'start': [430,118],
+                'start': [430,190],
                 'delay': 12,
                 'speed': .9,
                 'images': ['/static/images/sprites/Cat Sprite Sheet_flipped.png', '/static/images/sprites/Cat Sprite Sheet.png'],

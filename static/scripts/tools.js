@@ -35,6 +35,7 @@ export function sizeWindow(canvas, blockRight) {
 export const blocks = []
 export const npcs = []
 export const ghosts = []
+const sounds = []
 export const background = new Background()
 
 export function buildWorld(map, canvas) {
@@ -51,6 +52,11 @@ export function buildWorld(map, canvas) {
 
         setGameEnd(map.gameLength)
         await addObjects(map.objectsHash, map.objectsHash.length - 1, canvas)
+
+        map.sounds.forEach(sound => {
+            sounds.push(new Audio(`/static/sounds/world/${sound}.wav`))
+        })
+        playSounds()
         
         map.npcs.forEach(async npc => {
             let guy
@@ -75,6 +81,16 @@ export function buildWorld(map, canvas) {
         
         resolve()
     })
+}
+
+let si = 0
+function playSounds() {
+    sounds[si].play()
+    sounds[si].volume = .5
+    sounds[si].onended = () => {
+        si + 1 > sounds.length ? si = 0 : si++
+        playSounds()
+    }
 }
 
 export function drawWorld(c, canvas, scroll, end, terminalVelocity) {

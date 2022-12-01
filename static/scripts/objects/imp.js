@@ -88,11 +88,11 @@ export class Imp extends Npc {
         let inRange = false
         if (target.position.y + target.contact.b != this.position.y + this.contact.b) return
         if (this.flipped) {
-            if (mid + 15 < targetMid) {
+            if (mid + 10 < targetMid) {
                 inRange = true
             }
         } else {
-            if (mid - 15 > targetMid) {
+            if (mid - 10 > targetMid) {
                 inRange = true
             }
         }
@@ -146,7 +146,8 @@ export class Imp extends Npc {
                         flipped: this.flipped,
                         damage: 15,
                         fired: true,
-                        solid: false
+                        solid: false,
+                        sound: ['/static/sounds/projectiles/fire/fireRelease.mp3', '/static/sounds/projectiles/fire/fireImpact.mp3']
                     })
                     this.projectiles.push(fire)
                     this.attacking = false

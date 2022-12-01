@@ -2,7 +2,16 @@ import { npcs, blocks } from '/static/scripts/tools.js'
 import { player } from '/static/scripts/main.js'
 
 export class Projectile {
-    constructor({ speed, images, position, source, flipped, damage, fired, solid }) {
+    constructor({ speed, images, position, dist, source, flipped, damage, fired, solid, sound }) {
+
+        this.sounds = sound ? {
+            release: new Audio(sound[0]),
+            impact: new Audio(sound[1])
+        } : null
+
+        this.dist = dist ? dist : 10
+
+        this.releasePlayed = false
         
         this.images = images
         this.speed = speed
@@ -38,6 +47,13 @@ export class Projectile {
         }
 
         if (!this.fired) return
+
+        if (!this.releasePlayed) {
+            this.sounds.release.volume = .25
+            this.sounds.release.play()
+            this.releasePlayed = true
+        }
+
         if(this.position.x < -150 || this.position.x + this.width > canvas.width + 150) {
             this.remove(shooter)
         }
@@ -88,6 +104,15 @@ export class Projectile {
         }
 
         if (this.stopped) return
+
+        if (this.dist <= 0) {
+            this.position.y += 2
+        } else {
+            this.dist -= 1
+        }
+
+
+
         if (this.flipped) {
             this.position.x += this.speed
         } else {
@@ -104,6 +129,8 @@ export class Projectile {
                     && this.position.x + this.width < target.position.x + target.width    
                 ) {
                     target.takeDamage(this.damage, true)
+                    this.sounds.impact.valume = .25
+                    this.sounds.impact.play()
                     this.remove(shooter)
                 }
             } else {
@@ -111,6 +138,8 @@ export class Projectile {
                     && this.position.x > target.position.x + target.contact.l
                 ) {
                     target.takeDamage(this.damage, false)
+                    this.sounds.impact.valume = .25
+                    this.sounds.impact.play()
                     this.remove(shooter)
                 }
             }

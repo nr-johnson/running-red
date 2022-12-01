@@ -8,6 +8,26 @@ export class Player extends Character {
     constructor(baseTraits, playerTraits, canvas) {
         super(baseTraits, canvas)
 
+        this.sounds = {
+            run: [
+                new Audio('/static/sounds/player/run/run0.wav'),
+                new Audio('/static/sounds/player/run/run1.wav'),
+                new Audio('/static/sounds/player/run/run2.wav'),
+                new Audio('/static/sounds/player/run/run3.wav'),
+                new Audio('/static/sounds/player/run/run4.wav'),
+                new Audio('/static/sounds/player/run/run5.wav')
+            ],
+            jump: new Audio('/static/sounds/player/jump/jump.wav'),
+            land: new Audio('/static/sounds/player/jump/land.wav'),
+            slide: new Audio('/static/sounds/player/slide.mp3'),
+            attack: [
+                new Audio('/static/sounds/player/attacks/attack0.wav'),
+                new Audio('/static/sounds/player/attacks/attack1.wav')
+            ],
+            draw: new Audio('/static/sounds/player/draw.mp3'),
+            hit: new Audio('/static/sounds/player/attacks/hit.wav')
+        }
+
         this.contact = {
             mt: 64,
             t: 64,
@@ -71,7 +91,8 @@ export class Player extends Character {
                 flipped: this.flipped,
                 damage: 15,
                 fired: true,
-                solid: true
+                solid: true,
+                sound: ['/static/sounds/projectiles/arrow/arrowRelease.mp3', '/static/sounds/projectiles/arrow/arrowImpact.mp3']
             })
             this.projectiles.push(arrow)
         }
@@ -147,6 +168,10 @@ export class Player extends Character {
                         && npc.position.x + npc.contact.r > this.position.x + (this.width / 2)    
                     ) {
                         this.hit.push(npc)
+                        const sound = this.sounds.hit
+                        sound.currentTime = 0
+                        sound.volume = .1
+                        sound.play()
                         npc.takeDamage(damage, true)
                     }
                 } else {
@@ -154,6 +179,10 @@ export class Player extends Character {
                         && npc.position.x + npc.contact.l < this.position.x + (this.width / 2)
                     ) {
                         this.hit.push(npc)
+                        const sound = this.sounds.hit
+                        sound.currentTime = 0
+                        sound.volume = .1
+                        sound.play()
                         npc.takeDamage(damage, false)
                     }
                 }
@@ -179,6 +208,10 @@ export class Player extends Character {
                 this.nextFrame()
             } else {
                 this.frame = [2,10]
+                const sound = this.sounds.jump
+                sound.currentTime = 0
+                sound.volume = .25
+                sound.play()
             }
         } else if (this.velocity.y > .9) {
             // console.log('falling')
@@ -192,6 +225,10 @@ export class Player extends Character {
             // fell off ledge
             this.sliding = 0
             this.nextFrame()
+            const sound = this.sounds.land
+            sound.currentTime = 0
+            sound.volume = .1
+            sound.play()
         } else if (this.attacking) {
             this.sliding = 0
             // Attack animation
@@ -210,6 +247,9 @@ export class Player extends Character {
                 to = [6,7]
             }
 
+            
+            
+
             if (this.isWithin(from, to)) {
                 this.nextFrame()
             } else if(this.frame >= to) {
@@ -219,6 +259,11 @@ export class Player extends Character {
                 this.frame = [0,0]
             } else {
                 this.frame = from
+                const i = randomNumber(0,1)
+                const sound = this.sounds.attack[i]
+                sound.volume = .25
+                sound.currentTime = 0
+                sound.play()
             }
         } else if (this.weaponState == 1 || this.weaponState == 2) {
             this.sliding = 0
@@ -231,6 +276,11 @@ export class Player extends Character {
                 this.frame = [2,5]
             } else {
                 this.frame = [2,1]
+
+                const sound = this.sounds.draw
+                sound.volume = .25
+                sound.currentTime = .5
+                sound.play()
             }
         } else if (this.weaponState > 2) {
             if (this.isWithin([2,6], [2,11])) {
@@ -243,17 +293,30 @@ export class Player extends Character {
             }
         } else if (this.sliding != 0) {
             this.contact.t = 75
+            if (this.sounds.slide.paused && (this.sliding > 10 || this.sliding < -10)) {
+                const sound = this.sounds.slide
+                sound.currentTime = .41
+                sound.play()
+            }
             if(this.isWithin([4,4], [4,7])) {
                 this.nextFrame()
             } else if ((this.sliding < 5 && this.sliding > 0) || (this.sliding > -5 && this.sliding < 0)) {
                 this.prevFrame()
             } else {
                 this.frame = [4,4]
+                
             }
         } else if (this.running) {
             this.contact.t = this.contact.mt
             if (this.isWithin([0,1], [2,0])) {
                 this.nextFrame()
+                if (this.frame[1] == 5) {
+                    const i = randomNumber(0,5)
+                    const sound = this.sounds.run[i]
+                    sound.currentTime = 0
+                    sound.volume = .25
+                    sound.play()
+                }
             } else {
                 this.frame = [0,1]
             }
@@ -263,4 +326,8 @@ export class Player extends Character {
             this.frame = [0,0]
         }
     }
+}
+
+function randomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
