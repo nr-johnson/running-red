@@ -4,6 +4,8 @@ import { setGameEnd } from '/static/scripts/main.js'
 import { Imp } from '/static/scripts/objects/imp.js'
 import { Wall } from '/static/scripts/objects/invisibleWall.js'
 import { Ghost } from '/static/scripts/objects/ghost.js'
+import { Text } from '/static/scripts/objects/text.js'
+import { showMessage, clearMessage } from '/static/scripts/page.js'
 
 
 // Creates a new image object for the canvas to draw
@@ -35,6 +37,8 @@ export function sizeWindow(canvas, blockRight) {
 export const blocks = []
 export const npcs = []
 export const ghosts = []
+export const texts = []
+
 const sounds = []
 export const background = new Background()
 
@@ -57,6 +61,10 @@ export function buildWorld(map, canvas) {
             sounds.push(new Audio(`/static/sounds/world/${sound}.wav`))
         })
         playSounds()
+
+        map.text.forEach(txt => {
+            texts.push(new Text(txt, canvas))
+        })
         
         map.npcs.forEach(async npc => {
             let guy
@@ -84,13 +92,30 @@ export function buildWorld(map, canvas) {
 }
 
 let si = 0
+let notified = false
 function playSounds() {
-    sounds[si].play()
-    sounds[si].volume = .5
-    sounds[si].onended = () => {
-        si + 1 > sounds.length ? si = 0 : si++
-        playSounds()
+    let play = sounds[si].play()
+    if(play !== undefined) {
+        play.then(() => {
+            notified && clearMessage()
+            sounds[si].onended(() => {
+                si + 1 >= sounds.length ? si = 0 : si++
+                playSounds()
+            })
+        }).catch(err => {
+            if (err.name == 'NotAllowedError' && !notified) {
+                window.setTimeout(() => {
+                    showMessage('Your browser is blocking audio autoplay. For the best experience unblock audio.')
+                    notified = true
+                }, 3000)
+            }
+            setTimeout(() => {
+                playSounds()
+            }, 2000)
+        })
     }
+    // play.then().catch(err => { console.log(err) })    
+    sounds[si].volume = .5
 }
 
 export function drawWorld(c, canvas, scroll, end, terminalVelocity) {
@@ -102,6 +127,10 @@ export function drawWorld(c, canvas, scroll, end, terminalVelocity) {
             block.draw(c, canvas, scroll)
         }
         
+    })
+
+    texts.forEach(txt => {
+        txt.draw(c)
     })
 
     ghosts.forEach(ghst => {

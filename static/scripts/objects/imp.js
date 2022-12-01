@@ -191,6 +191,7 @@ export class Imp extends Npc {
     }
 
     reset() {
+        this.projectiles = []
         this.deathFrame = false
         this.health = 25
         this.revert()

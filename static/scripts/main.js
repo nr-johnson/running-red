@@ -1,6 +1,6 @@
 import { Player } from '/static/scripts/objects/player.js'
 import { renderUI } from '/static/scripts/UI/uiMain.js'
-import { newImage, buildWorld, drawWorld, blocks, npcs, ghosts, getLevel } from '/static/scripts/tools.js'
+import { newImage, buildWorld, drawWorld, blocks, npcs, ghosts, texts, getLevel } from '/static/scripts/tools.js'
 import { scrollOffset, resetScroll } from '/static/scripts/objects/objectTools.js'
 
 // Canvas div
@@ -130,16 +130,22 @@ main.classList.add('loaded')
 */
 
 export function reset() {
-    player.reset()
+    resetScroll()
+
     blocks.forEach(blk => {
         blk.reset()
     })
-    resetScroll()
+
+    player.reset()
+    
     npcs.forEach(npc => {
         npc.reset()
     })
     ghosts.forEach(ghst => {
         ghst.reset()
+    })
+    texts.forEach(txt => {
+        txt.reset()
     })
 }
 
@@ -163,9 +169,9 @@ window.addEventListener('keydown', ({ keyCode }) => {
                 player.weaponState = 0
             }
             break
-        case 96:
+        case 97:
         case 70:
-            // numpad 0
+            // numpad 1
             // F (Shoot)
             if (player.sliding == 0) {
                 player.weaponState = 1
@@ -175,9 +181,9 @@ window.addEventListener('keydown', ({ keyCode }) => {
             keys.draw.pressed = true
             break
         case 69:
-        case 97:
+        case 96:
             // E
-            // numpad 1
+            // numpad 0
             keys.attack.pressed = true
             break
 
@@ -247,9 +253,9 @@ window.addEventListener('keyup', ({ keyCode }) => {
             // Up
             keys.jump.pressed = false
         
-        case 96:
+        case 97:
         case 70:
-            // numpad 0
+            // numpad 1
             // F (Shoot)
             if (player.weaponState == 2) {
                 player.weaponState = 3
@@ -260,9 +266,9 @@ window.addEventListener('keyup', ({ keyCode }) => {
             break
 
         case 69:
-        case 97:
+        case 96:
             // E
-            // numpad 1
+            // numpad 0
             keys.attack.pressed = false
             break
     }

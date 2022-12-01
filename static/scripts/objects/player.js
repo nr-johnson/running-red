@@ -154,6 +154,7 @@ export class Player extends Character {
         this.weaponState = 0
         this.sliding = 0
         this.fallDamage = 31
+        this.projectiles = []
     }
 
     hitTarget(damage) {
@@ -227,7 +228,7 @@ export class Player extends Character {
             this.nextFrame()
             const sound = this.sounds.land
             sound.currentTime = 0
-            sound.volume = .1
+            sound.volume = .25
             sound.play()
         } else if (this.attacking) {
             this.sliding = 0

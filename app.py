@@ -10,6 +10,9 @@ levels = {
             'health': 100
         },
         'sounds': ['la2','la3','la4','la5','la1'],
+        'text': [
+            { 'msg': 'Climb!', 'pos': [385, 220], 'font': '16px sans-serif' }
+        ],
         'objectsHash': [
             'x.15 1s.gs 1.g.10 1s.ge',
             '',
@@ -35,13 +38,15 @@ levels = {
             '',
             'x.30 4.gs 4.g 4.ge',
             '',
-            'x.5 1s.gs 1.g.5 1s.ge x.4 1s.gs 1.g.10 1s.ge x.4 1.gs 1.g.2 1.ge'
+            'x.5 1s.gs 1.g.5 1s.ge x.4 1s.gs 1.g.10 1s.ge x.4 1.gs 1.g.40 1.ge'
         ],
         'images': {
             'background': [
-                {'img': '/static/images/backgrounds/woods_1.png', 'index': 0},
-                {'img': '/static/images/backgrounds/woods_2.png', 'index': 1},
-                {'img': '/static/images/backgrounds/woods_3.png', 'index': 2}
+                {'img': '/static/images/backgrounds/mountains1.png', 'index': 0},
+                {'img': '/static/images/backgrounds/mountains2.png', 'index': 1},
+                {'img': '/static/images/backgrounds/mountains3.png', 'index': 2},
+                {'img': '/static/images/backgrounds/mountains4.png', 'index': 3},
+                {'img': '/static/images/backgrounds/mountains5.png', 'index': 4}
             ]
         },
         'npcs': [

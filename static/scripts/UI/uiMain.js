@@ -10,15 +10,9 @@ export function renderUI() {
 
     
 
-    ui.fillStyle = player.health > 0 ? '#777' : 'red'
-    ui.fillRect(40, 20, 200, 20)
+    ui.fillStyle = '#8e2424'
+    ui.fillRect(40, 25, 200, 10)
 
-    ui.fillStyle = 'green'
-    ui.fillRect(40, 20, player.health * 2, 20)
-
-    ui.fillStyle = 'white'
-    ui.fillRect(40, 20, 200, 1)
-    ui.fillRect(40, 40, 200, 1)
-    ui.fillRect(40, 20, 1, 20)
-    ui.fillRect(240, 20, 1, 20)
+    ui.fillStyle = '#186718'
+    ui.fillRect(40, 25, player.health * 2, 10)
 }

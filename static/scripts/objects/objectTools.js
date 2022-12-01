@@ -1,5 +1,5 @@
 import { finishLine } from '/static/scripts/main.js'
-import { blocks, npcs, ghosts, background } from '/static/scripts/tools.js'
+import { blocks, npcs, ghosts, texts, background } from '/static/scripts/tools.js'
 
 // spriteect collision
 // Ok... Phew... Lots of conditionals here
@@ -145,6 +145,10 @@ export function scrollWorld(player, controls) {
             dart.position.x -= adj
         })
 
+        texts.forEach(txt => {
+            txt.position.x -= adj
+        })
+
         background.position.x -= adj
         blocks.forEach(block => {
             block.position.x -= adj
@@ -167,6 +171,10 @@ export function scrollWorld(player, controls) {
         
         player.projectiles.forEach(dart => {
             dart.position.x += adj
+        })
+
+        texts.forEach(txt => {
+            txt.position.x += adj
         })
 
         blocks.forEach(block => {
@@ -204,6 +212,10 @@ export function slideWorld(player, canvas, terminalVelocity) {
         } else {
             slideOffset += change
         }
+
+        texts.forEach(txt => {
+            txt.position.y += change
+        })
 
         player.position.y += change
         if (pBot > floor && slideOffset > 0) player.velocity.y = 0
@@ -260,4 +272,5 @@ export function slideWorld(player, canvas, terminalVelocity) {
 
 export function resetScroll() {
     scrollOffset = 0
+    slideOffset = 0
 }

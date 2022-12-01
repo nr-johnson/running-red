@@ -25,7 +25,7 @@ export class Block {
         // Original values entered for position. Used to calculate position on window resize
         this.origin = {
             x: position.x,
-            y: canvas.height - this.position.y
+            y: canvas.height - position.y
         }
     }
 
@@ -41,5 +41,6 @@ export class Block {
 
     reset() {
         this.position.x = this.origin.x
+        this.position.y = this.origin.y
     }
 }

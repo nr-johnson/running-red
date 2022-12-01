@@ -1,33 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
 body {
-    margin: 0;
-  }
-#game {
+  margin: 0;
+  background-color: #444;
+}
+#gameBanner {
   position: absolute;
+  font-family: 'Open Sans', sans-serif;
+  left: 0;
+  top: -2px;
+  width: 100%;
+  opacity: 0;
+  padding: 0;
+  margin: 0 auto;
+  background: #ffda90;
+  border-radius: 2px 2px 0 0;
+  transition: .25s;
+}
+#gameBanner p {
+  margin: .5rem;
+  width: fit-content;
+}
+#gameBanner.show {
+  /* right: 0; */
+  transform: translateY(calc(-100% + 2px));
+  opacity: 1;
+  transition: .25s;
+  transition-delay: .25s;
+}
+
+#game {
+  position: relative;
   width: 960px;
   height: 480px;
   
+  margin: 4rem 0;
+
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
+
+  /* background-color: #afbaf2; */
+  border-radius: 4px;
 }
 canvas, #background {
+  overflow: hidden;
+  border-radius: 4px;
   position: absolute;
   height: 100%;
   width: 100%;
 }
-#background {
-  border: 2px solid black;
-  background-color: #afbaf2;
-  box-shadow: 0 0 4px black;
-  border-radius: 4px;
+
+#mainCanvas {
+  border: 2px solid #222;
+  box-shadow: inset 0 0 8px black;
 }
 
 .instructions {
-  text-align: end;
-  right: 1rem;
-  position: absolute;
-  bottom: .5rem;
+  color: white;
+  text-align: center;
+  position: relative;
   font-size: 10pt;
+}
+
+#ui {
+  position: absolute;
+  z-index: 5;
+}
+
+#healthbar {
+  position: absolute;
+  top: 21px;
+  left: 20px;
 }
 
 @media (max-width: 980px) {
