@@ -16,7 +16,7 @@ export class Background {
         this.images.forEach(img => {
             const canv = this.elements.children[img.index].getContext('2d')
             canv.clearRect(0,0,canvas.width, canvas.height)
-            for (let j = 0; j < (finishLine + (canvas.width * 2)); j += img.img.width) {
+            for (let j = 0; j < (finishLine + (canvas.width * 3)); j += img.img.width) {
                 const pos = (this.position.x + (j * .99)) + (scroll / 1.41) + (((this.images.length - 1) - img.index) * (scroll / 15))
                 if (pos + img.img.width > 0 && pos < canvas.width) {
                     canv.drawImage(img.img, pos, this.position.y)

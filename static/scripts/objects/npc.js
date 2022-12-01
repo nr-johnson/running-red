@@ -102,7 +102,7 @@ export class Npc extends Character {
 
         // get.position.y + get.contact.t > this.position.y + this.height
         // get.position.y + get.contact.b < this.position.y
-        if(get.position.y + get.contact.b < (this.position.y + this.contact.t) - 48
+        if(get.position.y + get.contact.b < (this.position.y + this.contact.t) - 72
             || get.position.y + get.contact.t > this.position.y + this.contact.b
         ) {
             this.tracking = false
@@ -155,12 +155,12 @@ export class Npc extends Character {
     detectWorld() {
         if (!this.on.block) return
         if (this.on.block.includes('sprite')) {
-            if (this.keys.left.pressed && this.on.type == 'start') {
+            if (this.keys.left.pressed && this.on.type != 'end') {
                 if (this.position.x + this.contact.l + this.velocity.x <= this.on.left) {
                     this.keys.left.pressed = false
                     this.damaging > 0 ? this.velocity.x = 0 : null
                 }
-            } else if (this.keys.right.pressed && this.on.type == 'end') {
+            } else if (this.keys.right.pressed && this.on.type != 'start') {
                 if (this.position.x + this.contact.r + this.velocity.x >= this.on.right) {
                     this.keys.right.pressed = false
                     this.damaging > 0 ? this.velocity.x = 0 : null

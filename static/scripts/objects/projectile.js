@@ -121,8 +121,8 @@ export class Projectile {
     }
 
     isHit(target, shooter) {
-        if(this.position.y >= target.position.y + target.contact.t
-            && this.position.y + this.height <= target.position.y + target.contact.b
+        if(this.position.y >= target.position.y + target.contact.t - 3
+            && this.position.y + this.height <= target.position.y + target.contact.b +3
         ) {
             if (this.flipped) {
                 if (this.position.x + this.width >= target.position.x + target.contact.l

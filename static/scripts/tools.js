@@ -62,11 +62,11 @@ export function buildWorld(map, canvas) {
         })
         playSounds()
 
-        map.text.forEach(txt => {
+        map.text && map.text.forEach(txt => {
             texts.push(new Text(txt, canvas))
         })
         
-        map.npcs.forEach(async npc => {
+        map.npcs && map.npcs.forEach(async npc => {
             let guy
             if (npc.type == 'imp') {
                 guy = new Imp({ 
@@ -78,7 +78,7 @@ export function buildWorld(map, canvas) {
             npcs.push(guy)
         })
 
-        map.ghosts.forEach(async ghst => {
+        map.ghosts && map.ghosts.forEach(async ghst => {
             ghosts.push(new Ghost({
                 images: [await newImage(ghst.images[0]), await newImage(ghst.images[1])],
                 position: {x: ghst.start[0], y: ghst.start[1]},
@@ -194,7 +194,7 @@ const addObjects = (levels, canvas) => {
                     continue
                 }
 
-                images[dets[1]] ? null : images[dets[1]] = await newImage(`/static/images/objects/${dets[1]}.png`)
+                images[dets[1]] ? null : images[dets[1]] = await newImage(`/static/images/objects/environment/${dets[1]}.png`)
 
                 params.position.y = progY + images[dets[1]].height
                 params.image = images[dets[1]],
