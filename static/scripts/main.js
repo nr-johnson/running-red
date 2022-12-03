@@ -63,11 +63,7 @@ let imp
 let images = {}
 let world = await getLevel()
 
-async function initiate() {
-    // Player Sprite
-    const playerImg = await newImage('/static/images/red hood sprite.png')
-    const playerFlipped = await newImage('/static/images/red hood sprite_flipped.png')
-    
+async function initiate() {    
     player = new Player({ 
         images: [await newImage('/static/images/red hood sprite.png'), await newImage('/static/images/red hood sprite_flipped.png')],
         position: {x: world.player.start[0], y: world.player.start[1]},
@@ -80,6 +76,7 @@ async function initiate() {
     }, canvas)
 
     await buildWorld(world, canvas, images)  
+    
 
     // Initiates the game
     animate()
@@ -90,7 +87,7 @@ initiate()
 
 
 // Frame rate throtteling variable
-let fpsInterval = 1000 / 45
+let fpsInterval = 1000 / 50
 // Looping function that handles drawing, user input and object interactions
 function animate() {
     // Timeout used to slowdown framerate
@@ -102,7 +99,6 @@ function animate() {
         
 
         drawWorld(c, canvas, scrollOffset, finishLine, terminalVelocity)
-        
 
         // Udates player
         player.update(c, terminalVelocity, keys, canvas)
@@ -115,8 +111,6 @@ function animate() {
     }, fpsInterval);
 
     renderUI()
-
-    // requestAnimationFrame(animate)
 }
 
 main.classList.add('loaded')

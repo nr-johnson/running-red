@@ -163,8 +163,8 @@ export function scrollWorld(player, controls) {
             })
         })
     // If A pressed and player is not at start
-    } else if (((controls.left.pressed && player.weaponState == 0) || player.sliding < 0) && (scrollOffset - adj) > 0) {
-        scrollOffset -= adj
+    } else if (((controls.left.pressed && player.weaponState == 0) || player.sliding < 0) && scrollOffset > 0) {
+        scrollOffset - adj < 0 ? scrollOffset = 0 : scrollOffset -= adj
         player.running = true
         // Moves each platform
         background.position.x += adj

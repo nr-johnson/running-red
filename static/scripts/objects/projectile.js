@@ -68,8 +68,15 @@ export class Projectile {
                         || this.position.x + this.width + this.speed >= block.position.x)
                         && this.position.x + block.width < block.position.x + block.width
                     ) {
+                        if (!this.stopped) {
+                            this.sounds.impact.valume = .25
+                            this.sounds.impact.play()
+                        }
+                        
                         if (this.solid) {
-                            this.position.x = block.position.x - this.width + 3
+                            if(!this.stopped) {
+                                this.position.x = block.position.x - this.width + 3
+                            }
                             this.stopped = true
                         } else {
                             this.remove(shooter)
@@ -81,8 +88,14 @@ export class Projectile {
                         || this.position.x - this.speed <= block.position.x + block.width)
                         && this.position.x + this.width > block.position.x
                     ) {
+                        if (!this.stopped) {
+                            this.sounds.impact.valume = .25
+                            this.sounds.impact.play()
+                        }
                         if (this.solid) {
-                            this.position.x = block.position.x + block.width - 3
+                            if (!this.stopped) {
+                                this.position.x = block.position.x + block.width - 3
+                            }
                             this.stopped = true
                         } else {
                             this.remove(shooter)

@@ -1,0 +1,161 @@
+* {
+    padding:0;
+    margin:0;
+}
+
+main {
+    font-size: 0;
+    background: #444;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+}
+
+.row {
+    width: 100vw;
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: row;
+}
+
+.square {
+    position: relative;
+    flex: 1 1 0;
+    border: 1px solid black;
+
+    font-size: .5rem;
+    color: white;
+    text-shadow: 0 0 4px black;
+    text-align: center;
+}
+.square span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.square:hover {
+    background: #09097a;
+}
+
+aside {
+    padding: .5rem;
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    color: white;
+    background: black;
+}
+
+#results {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.b {
+    background: gold;
+    box-shadow: inset 0 -2px 4px black;
+}
+.be {
+    background: gold;
+    box-shadow: inset -2px -2px 4px black;
+}
+.bs {
+    background: gold;
+    box-shadow: inset 2px -2px 4px black;
+}
+
+.ee {
+    background-color: rgb(116, 76, 39);
+    box-shadow: inset -2px 0 4px black;
+}
+.es {
+    background-color: rgb(116, 76, 39);
+    box-shadow: inset 2px 0 4px black;
+}
+
+.l {
+    background: rgb(127, 127, 127);
+    box-shadow: inset 0 2px 2px black, inset 0 -2px 2px black;
+}
+.ls {
+    background: rgb(127, 127, 127);
+    box-shadow: inset 2px 2px 2px black, inset 0 -2px 2px black;
+}
+.le {
+    background: rgb(127, 127, 127);
+    box-shadow: inset -2px 2px 2px black, inset 0 -2px 2px black;
+}
+
+.t {
+    background: gold;
+    box-shadow: inset 0 2px 4px black;
+}
+.ts {
+    background: gold;
+    box-shadow: inset 0 2px 4px black, inset 2px 0 2px black;
+}
+.te {
+    background: gold;
+    box-shadow: inset 0 2px 4px black, inset -2px 0 2px black;
+}
+.tb {
+    background: gold;
+    box-shadow: inset 0 2px 2px black, inset 0 -2px 2px black, inset 2px 0 2px black, inset -2px 0 2px black;
+}
+.tce, .tcs {
+    position: relative;
+    background: gold;
+    box-shadow: inset 0 2px 4px black;
+}
+.tce::after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 50%;
+    width: 50%;
+    background-color: rgb(116, 76, 39);
+}
+.tcs::after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 50%;
+    width: 50%;
+    background-color: rgb(116, 76, 39);
+}
+
+.v {
+    background: rgb(79, 79, 79);
+}
+.vte {
+    background: rgb(79, 79, 79);
+    box-shadow: inset -2px 2px 4px black;
+}
+.vbe {
+    background: rgb(79, 79, 79);
+    box-shadow: inset -2px -2px 4px black;
+}
+.vts {
+    background: rgb(79, 79, 79);
+    box-shadow: inset 2px 2px 4px black;
+}
+.vbs {
+    background: rgb(79, 79, 79);
+    box-shadow: inset 2px -2px 4px black;
+}
+.w {
+    background: rgb(18, 125, 255);
+}
+.wt {
+    background: rgb(18, 125, 255);
+    box-shadow: inset 0 2px 4px black;
+}

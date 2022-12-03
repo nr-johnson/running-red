@@ -141,7 +141,7 @@ export class Player extends Character {
                 this.velocity.x = 0
                 return
             }
-            if (this.sliding != 0 && (this.position.x > blockRight || this.position.x < blockLeft)) {
+            if (this.sliding != 0 && (this.position.x > blockRight || (this.position.x < blockLeft && scrollOffset > 0))) {
                 this.velocity.x = 0
                 scrollWorld(this, this.keys)
             } else {
