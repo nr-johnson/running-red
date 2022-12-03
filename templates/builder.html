@@ -9,11 +9,22 @@
     <title>Document</title>
 </head>
 <body id="body">
-    <main id="level" data-x="{{ x }}" data-y="{{ y }}">
-        {% for i in range(y) %}
+    <main id="level" data-x="{{ data.dimensions.x }}" data-y="{{ data.dimensions.y }}">
+        {% for i in range(data.dimensions.y) %}
+            {% set r = data.objectsHash[i] %}
+            {% set c = r.split(" ") %}
             <div id='row{{ i }}' class="row">
-                {% for j in range(x) %}
-                    <div id="{{ i }}.{{ j }}" data-x="{{ j }}" data-blocking="0" data-type="x" class="square"></div>
+                {% for j in range(data.dimensions.x) %}
+                    set {% set thisData = c[j].split('.') %}
+                    {% if j == 39 and i == data.dimensions.y - 20 %}
+                        <div id="{{ i }}.{{ j }}" data-x="{{ j }}" data-blocking="{{ thisData[0] }}" data-type="{{ thisData[1] }}" class="square {{ thisData[1] }} edge-top edge-right">{{ thisData[0] }}.{{ thisData[1] }}</div>
+                    {% elif j == 39 and i >= data.dimensions.y - 20 %}
+                        <div id="{{ i }}.{{ j }}" data-x="{{ j }}" data-blocking="{{ thisData[0] }}" data-type="{{ thisData[1] }}" class="square {{ thisData[1] }} edge-right">{{ thisData[0] }}.{{ thisData[1] }}</div>
+                    {% elif i == data.dimensions.y - 20 and  j <= 39 %}
+                        <div id="{{ i }}.{{ j }}" data-x="{{ j }}" data-blocking="{{ thisData[0] }}" data-type="{{ thisData[1] }}" class="square {{ thisData[1] }} edge-top">{{ thisData[0] }}.{{ thisData[1] }}</div>
+                    {% else %}
+                        <div id="{{ i }}.{{ j }}" data-x="{{ j }}" data-blocking="{{ thisData[0] }}" data-type="{{ thisData[1] }}" class="square {{ thisData[1] }}">{{ thisData[0] }}.{{ thisData[1] }}</div>
+                    {% endif %}
                 {% endfor %}
             </div>
         {% endfor %}

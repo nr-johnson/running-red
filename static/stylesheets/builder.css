@@ -36,6 +36,12 @@ main {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+.square.edge-right {
+    border-right-color: red;
+}
+.square.edge-top {
+    border-top-color: red;
+}
 
 .square:hover {
     background: #09097a;

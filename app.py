@@ -26,14 +26,16 @@ def build():
             postedData = request.json
             worldData['gameLength'] = postedData['gameLength']
             worldData['objectsHash'] = postedData['objectsHash']
+            worldData['dimensions'] = postedData['dimensions']
             json.dump(worldData, worldFile)
 
         return 'Game Level Saved!'
     else:
-        x = int(request.args.get('x'))
-        y = int(request.args.get('y'))
-        print(f'X: {x}, Y: {y}')
-        return render_template('builder.html', x=x, y=y)
+        with open('./level.json') as worldFile:
+            worldData = json.load(worldFile)
+
+        return render_template('builder.html', data=worldData)
+        
 
 if __name__ == '__main__':
     app.run()

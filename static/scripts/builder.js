@@ -15,6 +15,8 @@ const spots = document.querySelectorAll('.square').forEach(sqr => {
         
         if (type.length == 0) {
             sqr.classList = 'square'
+            sqr.setAttribute('data-type', 'x')
+            sqr.setAttribute('data-blocking', '')
             sqr.innerHTML = ''
         } else {
             const clas = type.join('')
@@ -27,6 +29,8 @@ const spots = document.querySelectorAll('.square').forEach(sqr => {
     sqr.addEventListener('mousedown', e => {
         if (type.length == 0) {
             sqr.classList = 'square'
+            sqr.setAttribute('data-type', 'x')
+            sqr.setAttribute('data-blocking', '')
             sqr.innerHTML = ''
         } else {
             const clas = type.join('')
@@ -143,7 +147,12 @@ window.addEventListener('keyup', ({ keyCode }) => {
 })
 
 const saveWorld = () => {
-    world = {}
+    world = {
+        dimensions: {
+            x: parseInt(main.getAttribute('data-x')),
+            y: parseInt(main.getAttribute('data-y'))
+        }
+    }
     const rows = document.querySelectorAll('.row')
     world.gameLength = (24 * parseInt(main.getAttribute('data-x'))) - 966
     world.objectsHash = []
@@ -151,38 +160,16 @@ const saveWorld = () => {
     for (let i = 0; i < rows.length; i++) {
         const row = rows[i]
         let rowBlockData = ''
-        let notX = false
-        let currentBlockType = ''
-        let blockCountRepeat = 1
         for (let j = 0; j < row.children.length; j++) {
             const block = row.children[j]
             const blockType = block.getAttribute('data-type')
-
-            if (currentBlockType == blockType) {
-                blockCountRepeat++
+            if (blockType == 'x') {
+                rowBlockData = rowBlockData + `${j > 0 ? ' ' : ''}x`
             } else {
-                if (blockCountRepeat > 1) {
-                    rowBlockData = rowBlockData + `.${blockCountRepeat}`
-                    blockCountRepeat = 1
-                    currentBlockType = blockType
-                } else {
-                    currentBlockType = blockType
-                }
-                if (currentBlockType == 'x') {
-                    rowBlockData = rowBlockData + `${j > 0 ? ' ' : ''}x`
-                } else {
-                    notX = true
-                    rowBlockData = rowBlockData + `${j > 0 ? ' ' : ''}${block.getAttribute('data-blocking')}.${currentBlockType}`
-                }
+                rowBlockData = rowBlockData + `${j > 0 ? ' ' : ''}${block.getAttribute('data-blocking')}.${blockType}`
             }
         }
-        if (!notX) {
-            if (world.objectsHash.length > 0) {
-                world.objectsHash.push('')
-            }
-        } else {
-            world.objectsHash.push(rowBlockData)
-        }
+        world.objectsHash.push(rowBlockData)
         
     }
     main.style.visibility = 'hidden'
