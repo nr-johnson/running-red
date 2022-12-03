@@ -87,7 +87,7 @@ initiate()
 
 
 // Frame rate throtteling variable
-let fpsInterval = 1000 / 50
+let fpsInterval = 1000 / 45
 // Looping function that handles drawing, user input and object interactions
 function animate() {
     // Timeout used to slowdown framerate
