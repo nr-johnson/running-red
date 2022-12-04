@@ -51,7 +51,7 @@ export class Imp extends Npc {
 
         this.findTarget(player)
         
-        this.tracking ? this.attack(player) : this.action()
+        this.tracking ? this.damaging <= 0 && this.attack(player) : this.action()
 
         this.detectWorld()
 

@@ -1,7 +1,7 @@
 import { Character } from '/static/scripts/objects/baseCharacter.js'
 import { scrollWorld, slideWorld, scrollOffset } from '/static/scripts/objects/objectTools.js'
 import { blockLeft, blockRight, reset } from '/static/scripts/main.js'
-import { blocks, npcs, newImage } from '/static/scripts/tools.js'
+import { blocks, npcs, newImage, playAudio } from '/static/scripts/tools.js'
 import { Projectile } from '/static/scripts/objects/projectile.js'
 
 export class Player extends Character {
@@ -176,7 +176,7 @@ export class Player extends Character {
                         const sound = this.sounds.hit
                         sound.currentTime = 0
                         sound.volume = .1
-                        sound.play()
+                        playAudio(sound)
                         npc.takeDamage(damage, true)
                     }
                 } else {
@@ -187,7 +187,7 @@ export class Player extends Character {
                         const sound = this.sounds.hit
                         sound.currentTime = 0
                         sound.volume = .1
-                        sound.play()
+                        playAudio(sound)
                         npc.takeDamage(damage, false)
                     }
                 }
@@ -216,7 +216,7 @@ export class Player extends Character {
                 const sound = this.sounds.jump
                 sound.currentTime = 0
                 sound.volume = .25
-                sound.play()
+                playAudio(sound)
             }
         } else if (this.velocity.y > .9) {
             // console.log('falling')
@@ -233,7 +233,7 @@ export class Player extends Character {
             const sound = this.sounds.land
             sound.currentTime = 0
             sound.volume = .25
-            sound.play()
+            playAudio(sound)
         } else if (this.attacking) {
             this.sliding = 0
             // Attack animation
@@ -268,7 +268,7 @@ export class Player extends Character {
                 const sound = this.sounds.attack[i]
                 sound.volume = .25
                 sound.currentTime = 0
-                sound.play()
+                playAudio(sound)
             }
         } else if (this.weaponState == 1 || this.weaponState == 2) {
             this.sliding = 0
@@ -285,7 +285,7 @@ export class Player extends Character {
                 const sound = this.sounds.draw
                 sound.volume = .25
                 sound.currentTime = .5
-                sound.play()
+                playAudio(sound)
             }
         } else if (this.weaponState > 2) {
             if (this.isWithin([2,6], [2,11])) {
@@ -301,7 +301,7 @@ export class Player extends Character {
             if (this.sounds.slide.paused && (this.sliding > 10 || this.sliding < -10)) {
                 const sound = this.sounds.slide
                 sound.currentTime = .41
-                sound.play()
+                playAudio(sound)
             }
             if(this.isWithin([4,4], [4,7])) {
                 this.nextFrame()
@@ -320,7 +320,7 @@ export class Player extends Character {
                     const sound = this.sounds.run[i]
                     sound.currentTime = 0
                     sound.volume = .25
-                    sound.play()
+                    playAudio(sound)
                 }
             } else {
                 this.frame = [0,1]

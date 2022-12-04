@@ -23,7 +23,7 @@ const spots = document.querySelectorAll('.square').forEach(sqr => {
             sqr.classList = `square selected ${clas}`
             sqr.setAttribute('data-type', clas)
             sqr.setAttribute('data-blocking', blocking.join(''))
-            sqr.innerHTML = `<span>${blocking.join('')}.${type.join('')}</span>`
+            sqr.innerHTML = `<span>${blocking.join('')}</span>`
         }
     })
     sqr.addEventListener('mousedown', e => {
@@ -37,7 +37,7 @@ const spots = document.querySelectorAll('.square').forEach(sqr => {
             sqr.classList = `square selected ${clas}`
             sqr.setAttribute('data-type', clas)
             sqr.setAttribute('data-blocking', blocking.join(''))
-            sqr.innerHTML = `<span>${blocking.join('')}.${type.join('')}</span>`
+            sqr.innerHTML = `<span>${blocking.join('')}</span>`
         }
     })
 })
@@ -50,7 +50,6 @@ window.addEventListener('mouseup', () => {
 })
 
 window.addEventListener('keydown', ({ keyCode }) => {
-    console.log(keyCode)
     switch(keyCode) {
         case 32:
             // Space

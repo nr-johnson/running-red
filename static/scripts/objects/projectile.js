@@ -1,4 +1,4 @@
-import { npcs, blocks } from '/static/scripts/tools.js'
+import { npcs, blocks, playAudio } from '/static/scripts/tools.js'
 import { player } from '/static/scripts/main.js'
 
 export class Projectile {
@@ -50,7 +50,7 @@ export class Projectile {
 
         if (!this.releasePlayed) {
             this.sounds.release.volume = .25
-            this.sounds.release.play()
+            playAudio(this.sounds.release)
             this.releasePlayed = true
         }
 
@@ -70,7 +70,7 @@ export class Projectile {
                     ) {
                         if (!this.stopped) {
                             this.sounds.impact.valume = .25
-                            this.sounds.impact.play()
+                            playAudio(this.sounds.impact)
                         }
                         
                         if (this.solid) {
@@ -90,7 +90,7 @@ export class Projectile {
                     ) {
                         if (!this.stopped) {
                             this.sounds.impact.valume = .25
-                            this.sounds.impact.play()
+                            playAudio(this.sounds.impact)
                         }
                         if (this.solid) {
                             if (!this.stopped) {
@@ -143,7 +143,7 @@ export class Projectile {
                 ) {
                     target.takeDamage(this.damage, true)
                     this.sounds.impact.valume = .25
-                    this.sounds.impact.play()
+                    playAudio(this.sounds.impact)
                     this.remove(shooter)
                 }
             } else {
@@ -152,7 +152,7 @@ export class Projectile {
                 ) {
                     target.takeDamage(this.damage, false)
                     this.sounds.impact.valume = .25
-                    this.sounds.impact.play()
+                    playAudio(this.sounds.impact)
                     this.remove(shooter)
                 }
             }

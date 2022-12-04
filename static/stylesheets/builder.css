@@ -24,10 +24,12 @@ main {
     position: relative;
     flex: 1 1 0;
     border: 1px solid black;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
 
     font-size: .5rem;
     color: white;
-    text-shadow: 0 0 4px black;
     text-align: center;
 }
 .square span {
@@ -63,105 +65,109 @@ aside {
 }
 
 .b {
-    background: gold;
-    box-shadow: inset 0 -2px 4px black;
+    background-image: url('/static/images/objects/environment/b.png');
+    border-color: transparent;
 }
 .be {
-    background: gold;
-    box-shadow: inset -2px -2px 4px black;
+    background-image: url('/static/images/objects/environment/be.png');
+    background-position-x: right;
+    border-color: transparent;
 }
 .bs {
-    background: gold;
-    box-shadow: inset 2px -2px 4px black;
+    background-image: url('/static/images/objects/environment/bs.png');
+    background-position-x: left;
+    border-color: transparent;
 }
 
+.e {
+    background: rgb(41, 41, 41);
+    border-color: transparent;
+}
 .ee {
-    background-color: rgb(116, 76, 39);
-    box-shadow: inset -2px 0 4px black;
+    background-image: url('/static/images/objects/environment/ee.png');
+    background-position-x: right;
+    border-color: transparent;
 }
 .es {
-    background-color: rgb(116, 76, 39);
-    box-shadow: inset 2px 0 4px black;
+    background-image: url('/static/images/objects/environment/es.png');
+    background-position-x: left;
+    border-color: transparent;
 }
 
 .l {
-    background: rgb(127, 127, 127);
-    box-shadow: inset 0 2px 2px black, inset 0 -2px 2px black;
+    background-image: url('/static/images/objects/environment/l.png');
+    border-color: transparent;
 }
 .ls {
-    background: rgb(127, 127, 127);
-    box-shadow: inset 2px 2px 2px black, inset 0 -2px 2px black;
+    background-image: url('/static/images/objects/environment/ls.png');
+    background-position-x: left;
+    border-color: transparent;
 }
 .le {
-    background: rgb(127, 127, 127);
-    box-shadow: inset -2px 2px 2px black, inset 0 -2px 2px black;
+    background-image: url('/static/images/objects/environment/le.png');
+    background-position-x: right;
+    border-color: transparent;
 }
 
 .t {
-    background: gold;
-    box-shadow: inset 0 2px 4px black;
+    background-image: url('/static/images/objects/environment/t.png');
+    border-color: transparent;
 }
 .ts {
-    background: gold;
-    box-shadow: inset 0 2px 4px black, inset 2px 0 2px black;
+    background-image: url('/static/images/objects/environment/ts.png');
+    background-position-x: left;
+    border-color: transparent;
 }
 .te {
-    background: gold;
-    box-shadow: inset 0 2px 4px black, inset -2px 0 2px black;
+    background-image: url('/static/images/objects/environment/te.png');
+    background-position-x: right;
+    border-color: transparent;
 }
 .tb {
-    background: gold;
-    box-shadow: inset 0 2px 2px black, inset 0 -2px 2px black, inset 2px 0 2px black, inset -2px 0 2px black;
+    background-image: url('/static/images/objects/environment/tb.png');
+    border-color: transparent;
 }
-.tce, .tcs {
-    position: relative;
-    background: gold;
-    box-shadow: inset 0 2px 4px black;
+.tce{
+    background-image: url('/static/images/objects/environment/tce.png');
+    background-position-x: right;
+    border-color: transparent;
 }
-.tce::after {
-    content: '';
-    display: block;
-    position: absolute;
-    top: 0;
-    right: 0;
-    height: 50%;
-    width: 50%;
-    background-color: rgb(116, 76, 39);
-}
-.tcs::after {
-    content: '';
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 50%;
-    width: 50%;
-    background-color: rgb(116, 76, 39);
+
+.tcs {
+    background-image: url('/static/images/objects/environment/tcs.png');
+    background-position-x: left;
+    border-color: transparent;
 }
 
 .v {
-    background: rgb(79, 79, 79);
+    background-image: url('/static/images/objects/environment/v.png');
+    border-color: transparent;
 }
 .vte {
-    background: rgb(79, 79, 79);
-    box-shadow: inset -2px 2px 4px black;
+    background-image: url('/static/images/objects/environment/vte.png');
+    background-position-x: right;
+    border-color: transparent;
 }
 .vbe {
-    background: rgb(79, 79, 79);
-    box-shadow: inset -2px -2px 4px black;
+    background-image: url('/static/images/objects/environment/vbe.png');
+    background-position-x: right;
+    border-color: transparent;
 }
 .vts {
-    background: rgb(79, 79, 79);
-    box-shadow: inset 2px 2px 4px black;
+    background-image: url('/static/images/objects/environment/vts.png');
+    background-position-x: left;
+    border-color: transparent;
 }
 .vbs {
-    background: rgb(79, 79, 79);
-    box-shadow: inset 2px -2px 4px black;
+    background-image: url('/static/images/objects/environment/vbs.png');
+    background-position-x: left;
+    border-color: transparent;
 }
 .w {
-    background: rgb(18, 125, 255);
+    background-image: url('/static/images/objects/environment/w.png');
+    border-color: transparent;
 }
 .wt {
-    background: rgb(18, 125, 255);
-    box-shadow: inset 0 2px 4px black;
+    background-image: url('/static/images/objects/environment/wt.png');
+    border-color: transparent;
 }

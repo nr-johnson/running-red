@@ -27,8 +27,6 @@ export class Ghost extends Npc {
             }
             this.progress = this.delay
         }
-
-
     }
 
     reset() {

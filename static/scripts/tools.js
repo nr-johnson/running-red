@@ -57,11 +57,6 @@ export function buildWorld(map, canvas) {
         setGameEnd(map.gameLength)
         await addObjects(map.objectsHash, map.objectsHash.length - 1, canvas)
 
-        map.sounds.forEach(sound => {
-            sounds.push(new Audio(`/static/sounds/world/${sound}.wav`))
-        })
-        playSounds()
-
         map.text && map.text.forEach(txt => {
             texts.push(new Text(txt, canvas))
         })
@@ -91,31 +86,38 @@ export function buildWorld(map, canvas) {
     })
 }
 
-let si = 0
-let notified = false
-function playSounds() {
-    let play = sounds[si].play()
+export function playAudio(audio) {
+    let play = audio.play()
     if(play !== undefined) {
-        play.then(() => {
-            notified && clearMessage()
-            sounds[si].onended(() => {
-                si + 1 >= sounds.length ? si = 0 : si++
-                playSounds()
-            })
-        }).catch(err => {
+        play.then().catch(err => {
             if (err.name == 'NotAllowedError' && !notified) {
                 window.setTimeout(() => {
-                    showMessage('Your browser is blocking audio autoplay. For the best experience unblock audio.')
+                    showMessage('Your browser is blocking audio autoplay. For the best experience unblock audio and refresh the page.')
                     notified = true
                 }, 3000)
             }
-            setTimeout(() => {
-                playSounds()
-            }, 2000)
         })
     }
-    // play.then().catch(err => { console.log(err) })    
+}
+
+let si = 0
+let notified = false
+
+export function playMusic(songs) {
+    songs.forEach(song => {
+        sounds.push(new Audio(`/static/sounds/world/${song}.wav`))
+    })
+    playSounds()
+}
+
+function playSounds() {
     sounds[si].volume = .5
+    playAudio(sounds[si])
+    sounds[si].addEventListener('ended', () => {
+        si + 1 >= sounds.length ? si = 0 : si++
+        playSounds()
+    }) 
+    
 }
 
 export function drawWorld(c, canvas, scroll, end, terminalVelocity) {
@@ -136,6 +138,9 @@ export function drawWorld(c, canvas, scroll, end, terminalVelocity) {
     ghosts.forEach(ghst => {
         if (ghst.position.x + ghst.width > 0 && ghst.position.x < canvas.width && ghst.position.y + ghst.height > 0 && ghst.position.y < canvas.height) {
             ghst.update(c)
+            console.log(ghst.position)
+        } else {
+            console.log('out, ' + ghst.position)
         }
     })
 

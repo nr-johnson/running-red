@@ -8,10 +8,37 @@
     
   </head>
   <body>
-    <section id="game">
+    
+    <section id="game" class="">
       <div id="gameBanner"></div>
-      <div id="ui">
+      <button id="initiateButton">Click to Play!</button>
+      <div id="ui" class="hide">
         <img id="healthbar" src="/static/images/Healthbar.png">
+        <button id="pauseButton">
+          <span id="pauseIcon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pause-circle-fill" viewBox="0 0 16 16">
+              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.25 5C5.56 5 5 5.56 5 6.25v3.5a1.25 1.25 0 1 0 2.5 0v-3.5C7.5 5.56 6.94 5 6.25 5zm3.5 0c-.69 0-1.25.56-1.25 1.25v3.5a1.25 1.25 0 1 0 2.5 0v-3.5C11 5.56 10.44 5 9.75 5z"/>
+            </svg>
+          </span>
+          <span id="playIcon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
+              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/>
+            </svg>
+          </span>
+        </button>
+        
+        <div id="menu">
+          <h3>Game Credits:</h3>
+          <h4>Code:</h4>
+          <p>All code was written by Nathanael Johnson. <a href="https://github.com/nr-johnson/running-red" target="_blank">Click here to view the GitHub repository.</a></p>
+          
+          <h4>Artwork:</h4>
+          <p>All image assets were taken from various free-to-use packages on itch.io. Below is a list of the main packages and their creators.</p>
+        
+        
+          <h4>Audio:</h4>
+          <p>Most audio was taken from free-to-use packages on itch.io.</p>
+        </div>
       </div>
       <section id="background"></section>
       <canvas id="mainCanvas"></canvas>

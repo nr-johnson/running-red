@@ -88,8 +88,6 @@ export class Npc extends Character {
                 this.keys[action.key[i]].pressed = true
             }
         }
-
-
         
     }
 
@@ -102,7 +100,7 @@ export class Npc extends Character {
 
         // get.position.y + get.contact.t > this.position.y + this.height
         // get.position.y + get.contact.b < this.position.y
-        if(get.position.y + get.contact.b < (this.position.y + this.contact.t) - 72
+        if(get.position.y + get.contact.b < (this.position.y + this.contact.t) - 60
             || get.position.y + get.contact.t > this.position.y + this.contact.b
         ) {
             this.tracking = false

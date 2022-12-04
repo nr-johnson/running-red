@@ -1,6 +1,6 @@
 import { Player } from '/static/scripts/objects/player.js'
 import { renderUI } from '/static/scripts/UI/uiMain.js'
-import { newImage, buildWorld, drawWorld, blocks, npcs, ghosts, texts, getLevel } from '/static/scripts/tools.js'
+import { newImage, buildWorld, drawWorld, blocks, npcs, ghosts, texts, getLevel, playMusic } from '/static/scripts/tools.js'
 import { scrollOffset, resetScroll } from '/static/scripts/objects/objectTools.js'
 
 // Canvas div
@@ -24,6 +24,7 @@ export let finishLine = 1500 // Length to scroll before winning
 export const blockLeft = 100
 export const blockRight = Math.round(canvas.width - 200)
 export const gravity = 1.75 // Fall speed
+let paused = false
 const terminalVelocity = 20
 let gameOver = false
 
@@ -59,11 +60,20 @@ export const keys = {
 */
 
 export let player
-let imp
 let images = {}
 let world = await getLevel()
 
-async function initiate() {    
+const initiateButton = document.getElementById('initiateButton')
+initiateButton.addEventListener('click', () => {
+    initiate()
+})
+
+playMusic(world.sounds)
+
+async function initiate() {
+    main.classList.add('loading')
+    initiateButton.classList.add('hide') 
+
     player = new Player({ 
         images: [await newImage('/static/images/red hood sprite.png'), await newImage('/static/images/red hood sprite_flipped.png')],
         position: {x: world.player.start[0], y: world.player.start[1]},
@@ -80,10 +90,10 @@ async function initiate() {
 
     // Initiates the game
     animate()
-    
+    document.getElementById('ui').classList.remove('hide') 
 }
 
-initiate()
+// initiate()
 
 
 // Frame rate throtteling variable
@@ -92,7 +102,10 @@ let fpsInterval = 1000 / 45
 function animate() {
     // Timeout used to slowdown framerate
     setTimeout(() => {
-        requestAnimationFrame(animate);
+        if (!paused) {
+            requestAnimationFrame(animate);
+        }
+        
         // Clears the previous frame
         c.clearRect(0,0,canvas.width, canvas.height)
 
@@ -108,6 +121,7 @@ function animate() {
             player.position.x = player.position.x -1
             console.log('you win')
         }
+        main.classList.remove('loading')
     }, fpsInterval);
 
     renderUI()
@@ -155,6 +169,7 @@ window.addEventListener('keydown', ({ keyCode }) => {
             // W
             // [Spacebar]
             // Up
+            if (paused) return
             keys.jump.pressed = true
             if (player.velocity.y == 0 && player.jump) {
                 player.jump = false
@@ -267,6 +282,13 @@ window.addEventListener('keyup', ({ keyCode }) => {
             break
     }
 
+})
+
+const pauseButton = document.getElementById('pauseButton')
+pauseButton.addEventListener('click', () => {
+    paused = !paused
+    pauseButton.classList.toggle('paused')
+    animate()
 })
 
 // Window resize event listener.
