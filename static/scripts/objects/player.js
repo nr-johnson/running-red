@@ -41,6 +41,9 @@ export class Player extends Character {
             '/static/images/projectiles/Arrow_flipped.png'
         ]
 
+        this.position.y = canvas.height - this.contact.b - baseTraits.position.y
+        this.origin.y = canvas.height - this.contact.b - baseTraits.position.y
+
         this.health = playerTraits.health ? playerTraits.health : 100
         this.jumpHeight = 18
         this.flipped = true

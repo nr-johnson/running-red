@@ -27,6 +27,8 @@ def build():
             worldData['gameLength'] = postedData['gameLength']
             worldData['objectsHash'] = postedData['objectsHash']
             worldData['dimensions'] = postedData['dimensions']
+            worldData['player']['start'] = postedData['player']['start']
+            worldData['npcs'] = postedData['sprites']
             json.dump(worldData, worldFile)
 
         return 'Game Level Saved!'

@@ -38,6 +38,10 @@
                 {% endfor %}
             </div>
         {% endfor %}
+        <div id="player" data-left={{data.player.start[0]}} data-bottom={{data.player.start[1]}}></div>
+        {% for s in data.npcs %}
+            <div class="sprite" data-left={{s.start[0]}} data-bottom={{s.start[1]}} data-type={{s.type}}></div>
+        {% endfor %}
     </main>
     <aside id="indicator"></aside>
     <div id="results"></div>

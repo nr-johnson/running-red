@@ -1,3 +1,8 @@
+:root {
+    --square-w: 0;
+    --square-h: 0;
+}
+
 * {
     padding:0;
     margin:0;
@@ -62,6 +67,27 @@ aside {
     position: absolute;
     top: 0;
     left: 0;
+}
+
+#player, .sprite {
+    position: absolute;
+    height: 20px;
+    width: 10px;
+    cursor: pointer;
+}
+
+#player {
+    background-color: #c91818;
+}
+.sprite[data-type='imp'] {
+    background-color: brown;
+}
+.sprite[data-type='guy'] {
+    height: 60px;
+    background-color: purple;
+}
+.sprite[data-type='cat'] {
+    background-color: yellow;
 }
 
 .b {
