@@ -1,5 +1,5 @@
 import { Character } from '/static/scripts/objects/baseCharacter.js'
-import { scrollWorld, slideWorld, scrollOffset } from '/static/scripts/objects/objectTools.js'
+import { scrollWorld, slideWorld, scrollOffset, randomNumber } from '/static/scripts/objects/objectTools.js'
 import { blockLeft, blockRight, reset } from '/static/scripts/main.js'
 import { blocks, npcs, newImage, playAudio } from '/static/scripts/tools.js'
 import { Projectile } from '/static/scripts/objects/projectile.js'
@@ -331,8 +331,4 @@ export class Player extends Character {
             this.frame = [0,0]
         }
     }
-}
-
-function randomNumber(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
 }

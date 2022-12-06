@@ -33,6 +33,20 @@ def build():
     else:
         with open('./level.json') as worldFile:
             worldData = json.load(worldFile)
+            if request.args.get('x'):
+                worldData["dimensions"]["x"] = int(request.args.get('x'))
+            if request.args.get('y'):
+                worldData["dimensions"]["y"] = int(request.args.get('y'))
+            
+            if len(worldData["objectsHash"]) < worldData["dimensions"]["y"]:
+                count = worldData["dimensions"]["y"] - len(worldData["objectsHash"])
+                for i in range(count):
+                    worldData["objectsHash"].insert(0, '')
+            elif len(worldData["objectsHash"]) > worldData["dimensions"]["y"]:
+                count = len(worldData["objectsHash"]) - worldData["dimensions"]["y"]
+                for i in range(count):
+                    worldData["objectsHash"].pop(0)
+            
 
         return render_template('builder.html', data=worldData)
         

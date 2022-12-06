@@ -1,11 +1,11 @@
 import { Npc } from '/static/scripts/objects/npc.js'
-import { blocks, newImage } from '/static/scripts/tools.js'
+import { blocks, playAudio, newImage } from '/static/scripts/tools.js'
+import { randomNumber } from '/static/scripts/objects/objectTools.js' 
 import { player } from '/static/scripts/main.js'
-import { Projectile } from '/static/scripts/objects/projectile.js'
 
 const defaultImages = [
-    await newImage("/static/images/sprites/Imp Sprite Sheet_flipped.png"),
-    await newImage("/static/images/sprites/Imp Sprite Sheet.png")
+    await newImage("/static/images/sprites/Guy Sprite Sheet_flipped.png"),
+    await newImage("/static/images/sprites/Guy Sprite Sheet.png")
 ]
 
 const defaultAnimations = [
@@ -17,44 +17,59 @@ const defaultAnimations = [
     {"key": false, "time": 200}
 ]
  
-export class Imp extends Npc {
+export class Guy extends Npc {
     constructor({ images, position, frames, frame }, { health, animations, index }, canvas) {
         super(
             { 
                 images: images ? images : defaultImages,
                 position,
-                frames: frames ? frames : [8,6],
+                frames: frames ? frames : [11,25],
                 frame
             }, 
             { 
                 clas: 'enemy',
                 animations: animations ? animations : defaultAnimations,
-                delay: 12,
+                delay: 10,
                 index
             },
             canvas
         )
 
+        this.sounds = {
+            run: [
+                new Audio('/static/sounds/player/run/run0.wav'),
+                new Audio('/static/sounds/player/run/run1.wav'),
+                new Audio('/static/sounds/player/run/run2.wav'),
+                new Audio('/static/sounds/player/run/run3.wav'),
+                new Audio('/static/sounds/player/run/run4.wav'),
+                new Audio('/static/sounds/player/run/run5.wav')
+            ],
+            attack: [
+                new Audio('/static/sounds/npcs/punches/punch1.wav'),
+                new Audio('/static/sounds/npcs/punches/punch2.wav'),
+                new Audio('/static/sounds/npcs/punches/punch3.wav'),
+                new Audio('/static/sounds/npcs/punches/punch4.wav')
+            ]
+        }
+
         
-        this.health = health ? health : 25
-        this.speed = 1.25
+        this.health = health ? health : 75
+        this.speed = 2.5
         this.defaultSpeed = this.speed
         this.jumpHeight = 14
         this.slow = .25
-        this.detectionRaius = 350
+        this.detectionRaius = 200
         this.interactive = true
         this.physics = true
-        this.trackingStop = 40
+        this.trackingStop = 10
+        this.attackRange = 10
+        this.attackAnimtionReference = 0
+        this.playerInAttackRange = false
 
-        this.fireball = [
-            '/static/images/projectiles/Fireball.png',
-            '/static/images/projectiles/Fireball_flipped.png'
-        ]
-
-        this.attackDelay = 12
+        this.attackDelay = 3
         this.attackTime = false
         
-        this.contact = {mt: 10, t: 10, r: 30, b: 36, l: 15}
+        this.contact = {mt: 0, t: 0, r: 65, b: 57, l: 30}
 
     }
 
@@ -69,13 +84,6 @@ export class Imp extends Npc {
             this.deathAnim()
             
             return
-        }
-
-        if (typeof this.fireball[0] == 'string') {
-            this.fireball[0] = await newImage(this.fireball[0])
-        }
-        if (typeof this.fireball[1] == 'string') {
-            this.fireball[1] = await newImage(this.fireball[1])
         }
 
         this.findTarget(player)
@@ -100,10 +108,6 @@ export class Imp extends Npc {
                 
         this.physics && this.detectCollision(this, this.keys, blocks)
 
-        this.projectiles.forEach(dart => {
-            dart.update(c, canvas, this)
-        })
-
         if (this.stopped == 3) {
             this.jump = true
         }
@@ -112,28 +116,30 @@ export class Imp extends Npc {
     }
 
     attack(target) {
-        const mid = this.position.x + (this.width / 2)
-        const targetMid = target.position.x + (target.width / 2)
+        const dif = 30
         let inRange = false
         if (target.position.y + target.contact.b != this.position.y + this.contact.b) return
         if (this.flipped) {
-            if (mid + 10 < targetMid) {
+            if (target.position.x + target.contact.l < (this.position.x + this.width) - dif) {
                 inRange = true
             }
         } else {
-            if (mid - 10 > targetMid) {
+            if (target.position.x + target.contact.r > this.position.x + dif) {
                 inRange = true
             }
         }
         if (!this.attackTime) {
-            this.attackTime = new Date(Date.now())           
+            this.attackTime = new Date(Date.now())
         } else if (inRange) {
+            this.playerInAttackRange = true
             const now = new Date(Date.now())
             if (now - this.attackTime >= this.attackDelay * 100) {
                 this.attacking = true
                 this.keys.left.pressed = false
                 this.keys.right.pressed = false
             }
+        } else {
+            this.playerInAttackRange = false
         }
     }
 
@@ -143,18 +149,18 @@ export class Imp extends Npc {
         } else {
             if (this.deathFrame) {
                 if (this.deathFrame <= 1) {
-                    this.frame = [4,5]
+                    this.frame = [18,10]
                     this.alive = false
                     return
                 }
             }
             
-            if (this.isWithin([4,0], [4,4])) {
+            if (this.isWithin([18,0], [18,9])) {
                 this.deathFrame -= 1
                 this.nextFrame()
             } else {
-                this.deathFrame = 5
-                this.frame = [4,0]
+                this.deathFrame = 10
+                this.frame = [18,0]
             }
             this.progress = this.delay
         }
@@ -165,51 +171,58 @@ export class Imp extends Npc {
             this.progress -= 5
         } else {
             if (this.attacking) {
-                if (this.isWithin([2,3], [2,4])) {
+                const animationRow = 12 + this.attackAnimtionReference
+                const animationLength = animationRow % 2 == 0 ? 5 : 4
+                if (this.isWithin([animationRow,animationLength - 1], [animationRow,animationLength])) {
+                    if(this.playerInAttackRange) {
+                        const sound = this.sounds.attack[this.attackAnimtionReference]
+                        sound.currentTime = 0
+                        sound.volume = .1
+                        playAudio(sound)
+                        player.takeDamage(20, this.flipped)
+                    
+                    }
+                    this.attackAnimtionReference = randomNumber(0,3);
                     this.attackTime = new Date(Date.now())
-                    const fire = new Projectile({
-                        speed: 15,
-                        images: this.fireball,
-                        position: {x: this.position.x + this.contact.l, y: this.position.y + this.contact.mt + 13}, 
-                        source: 'npc',
-                        flipped: this.flipped,
-                        damage: 15,
-                        fired: true,
-                        solid: false,
-                        sound: ['/static/sounds/projectiles/fire/fireRelease.mp3', '/static/sounds/projectiles/fire/fireImpact.mp3']
-                    })
-                    this.projectiles.push(fire)
                     this.attacking = false
                     this.nextFrame()
-                } else if (this.isWithin([2,0], [2,3])) {
+                } else if (this.isWithin([animationRow,0], [animationRow,animationLength - 1])) {
                     this.nextFrame()
                 } else {
-                    this.frame = [2,0]
+                    this.frame = [animationRow,0]
                 }
             } else if (this.damaging > 0) {
-                if (this.isWithin([3,0], [3,3])) {
+                if (this.isWithin([17,0], [17,3])) {
                     this.nextFrame()
                 } else {
-                    this.frame = [3,0]
+                    this.frame = [17,0]
                 }
                 this.damaging--
             } else if ((this.keys.right.pressed || this.keys.left.pressed) && this.keys.down.pressed) {
                 this.speed = this.slow
-                if (this.isWithin([2,0],[2,5])) {
+                this.progress += 4
+                if (this.isWithin([8,0],[8,8])) {
                     this.nextFrame()
                 } else {
-                    this.frame = [2,0]
+                    this.frame = [8,0]
                 }
             } else if (this.keys.right.pressed || this.keys.left.pressed) {
                 this.speed = this.defaultSpeed
-                if (this.isWithin([1,0],[1,7])) {
+                if (this.isWithin([4,0],[4,8])) {
+                    if (this.frame[1] == 0 || this.frame[1] == 4) {
+                        const sountIndex = randomNumber(0,5)
+                        const sound = this.sounds.run[sountIndex]
+                        sound.currentTime = 0
+                        sound.volume = .1
+                        playAudio(sound)
+                    }
                     this.nextFrame()
                 } else {
-                    this.frame = [1,0]
+                    this.frame = [4,0]
                 }
             } else {
                 this.speed = this.defaultSpeed
-                if (this.isWithin([0,0],[0,6])) {
+                if (this.isWithin([0,0],[0,3])) {
                     this.nextFrame()
                 } else {
                     this.frame = [0,0]

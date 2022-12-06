@@ -16,20 +16,24 @@
             {% set text = '' %}
             <div id='row{{ i }}' class="row">
                 {% for j in range(data.dimensions.x) %}
-                    {% set thisData = c[j].split('.') %}
-                    {% if thisData[0] != "x" %}
-                        {% set text = thisData[0] %}
-                    {% endif %}
-
-
-                    {% if j == 39 and i == data.dimensions.y - 20 %}
-                        <div id="{{ i }}.{{ j }}" data-x="{{ j }}" data-blocking="{{ thisData[0] }}" data-type="{{ thisData[1] }}" class="square {{ thisData[1] }} edge-top edge-right"><span>{{ text }}</span></div>
-                    {% elif j == 39 and i >= data.dimensions.y - 20 %}
-                        <div id="{{ i }}.{{ j }}" data-x="{{ j }}" data-blocking="{{ thisData[0] }}" data-type="{{ thisData[1] }}" class="square {{ thisData[1] }} edge-right"><span>{{ text }}</span></div>
-                    {% elif i == data.dimensions.y - 20 and  j <= 39 %}
-                        <div id="{{ i }}.{{ j }}" data-x="{{ j }}" data-blocking="{{ thisData[0] }}" data-type="{{ thisData[1] }}" class="square {{ thisData[1] }} edge-top"><span>{{ text }}</span></div>
+                    {% if not c[j] %}
+                        <div id="{{ i }}.{{ j }}" data-x="{{ j }}" data-blocking="" data-type="x" class="square"><span></span></div>
                     {% else %}
-                        <div id="{{ i }}.{{ j }}" data-x="{{ j }}" data-blocking="{{ thisData[0] }}" data-type="{{ thisData[1] }}" class="square {{ thisData[1] }}"><span>{{ text }}</span></div>
+                        {% set thisData = c[j].split('.') %}
+                        {% if thisData[0] != "x" %}
+                            {% set text = thisData[0] %}
+                        {% endif %}
+
+
+                        {% if j == 39 and i == data.dimensions.y - 20 %}
+                            <div id="{{ i }}.{{ j }}" data-x="{{ j }}" data-blocking="{{ thisData[0] }}" data-type="{{ thisData[1] }}" class="square {{ thisData[1] }} edge-top edge-right"><span>{{ text }}</span></div>
+                        {% elif j == 39 and i >= data.dimensions.y - 20 %}
+                            <div id="{{ i }}.{{ j }}" data-x="{{ j }}" data-blocking="{{ thisData[0] }}" data-type="{{ thisData[1] }}" class="square {{ thisData[1] }} edge-right"><span>{{ text }}</span></div>
+                        {% elif i == data.dimensions.y - 20 and  j <= 39 %}
+                            <div id="{{ i }}.{{ j }}" data-x="{{ j }}" data-blocking="{{ thisData[0] }}" data-type="{{ thisData[1] }}" class="square {{ thisData[1] }} edge-top"><span>{{ text }}</span></div>
+                        {% else %}
+                            <div id="{{ i }}.{{ j }}" data-x="{{ j }}" data-blocking="{{ thisData[0] }}" data-type="{{ thisData[1] }}" class="square {{ thisData[1] }}"><span>{{ text }}</span></div>
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
             </div>

@@ -1,10 +1,12 @@
 import { Character } from '/static/scripts/objects/baseCharacter.js'
 
 export class Npc extends Character {
-    constructor(baseTraits, { clas, animations, delay }, canvas) {
+    constructor(baseTraits, { clas, animations, delay, index }, canvas) {
         super(baseTraits, canvas)
 
         this.clas = clas ? clas : null
+
+        this.animationsStartDelay = index ? index * 200 : null
 
         this.alive = true
         this.distracted = false
@@ -22,6 +24,7 @@ export class Npc extends Character {
         this.delay = delay
         this.progress = delay
         this.tracking = false
+        this.attackRange = 10
         
         this.keys = {
             right: {
@@ -69,7 +72,10 @@ export class Npc extends Character {
                 pressed: false
             }
         }
-            
+        if(this.animationsStartDelay > 0) {
+            this.animationsStartDelay--
+            return
+        }
         if (this.animations[this.actionI].time < this.sec) {
             if (this.actionI + 1 > this.animations.length - 1) {
                 this.actionI = 0
@@ -88,7 +94,6 @@ export class Npc extends Character {
                 this.keys[action.key[i]].pressed = true
             }
         }
-        
     }
 
     findTarget(get) {

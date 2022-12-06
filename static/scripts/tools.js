@@ -2,6 +2,7 @@ import { Block } from '/static/scripts/objects/block.js'
 import { Background } from '/static/scripts/objects/background.js'
 import { setGameEnd } from '/static/scripts/main.js'
 import { Imp } from '/static/scripts/objects/imp.js'
+import { Guy } from '/static/scripts/objects/guy.js'
 import { Wall } from '/static/scripts/objects/invisibleWall.js'
 import { Ghost } from '/static/scripts/objects/ghost.js'
 import { Text } from '/static/scripts/objects/text.js'
@@ -61,16 +62,19 @@ export function buildWorld(map, canvas) {
             texts.push(new Text(txt, canvas))
         })
         
-        map.npcs && map.npcs.forEach(async npc => {
-            let guy
-            if (npc.type == 'imp') {
-                guy = new Imp({ 
-                    images: [await newImage(npc.images[0]), await newImage(npc.images[1])],
-                    position: {x: npc.start[0], y: npc.start[1]},
-                    frames: npc.frames
-                }, npc, canvas)
+        map.npcs && map.npcs.forEach(async (npc, index) => {
+            let newNPC
+            const params = {
+                images: npc.images ? [await newImage(npc.images[0]), await newImage(npc.images[1])] : null,
+                position: {x: npc.start[0], y: npc.start[1]},
+                frames: npc.frames
             }
-            npcs.push(guy)
+            if (npc.type == 'imp') {
+                newNPC = new Imp(params, {...npc, index}, canvas)
+            } else if (npc.type == 'guy') {
+                newNPC = new Guy(params, {...npc, index}, canvas)
+            }
+            npcs.push(newNPC)
         })
 
         map.ghosts && map.ghosts.forEach(async ghst => {
@@ -138,9 +142,6 @@ export function drawWorld(c, canvas, scroll, end, terminalVelocity) {
     ghosts.forEach(ghst => {
         if (ghst.position.x + ghst.width > 0 && ghst.position.x < canvas.width && ghst.position.y + ghst.height > 0 && ghst.position.y < canvas.height) {
             ghst.update(c)
-            console.log(ghst.position)
-        } else {
-            console.log('out, ' + ghst.position)
         }
     })
 

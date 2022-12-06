@@ -128,6 +128,10 @@ export function characterControl(player, controls) {
     }
 }
 
+export function randomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 // The scroll index for the environment
 export let scrollOffset = 0
 export function scrollWorld(player, controls) {
