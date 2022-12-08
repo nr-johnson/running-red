@@ -57,6 +57,7 @@ export class Character {
         }
         
         c.drawImage(this.flipped ? this.images[1] : this.images[0], this.frame[1] * this.width, this.frame[0] * this.height, this.width, this.height, this.position.x, this.position.y, this.width, this.height)
+        this.loaded = true
     }
 
     flip() {

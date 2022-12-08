@@ -25,4 +25,11 @@ export class Background {
             // (this.position.x + j) + ((scroll / 5) / (i + 1))
         })
     }
+
+    reset() {
+        this.position = {
+            x: 0,
+            y: 0
+        }
+    }
 }

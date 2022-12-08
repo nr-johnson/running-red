@@ -78,6 +78,7 @@ aside {
 
 #player {
     background-color: #c91818;
+    border: 1px solid gold;
 }
 .sprite[data-type='imp'] {
     background-color: brown;

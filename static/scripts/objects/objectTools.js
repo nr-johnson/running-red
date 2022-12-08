@@ -134,15 +134,56 @@ export function randomNumber(min, max) {
 
 // The scroll index for the environment
 export let scrollOffset = 0
+let scrollStop = 0
 export function scrollWorld(player, controls) {
     // Scrolls platforms opposite of player movement when player is at stopping points (simulates progression)
     // If D pressed and not at winning location
-    player.velocity.x = 0
+    const overScrollAmount = 32
     const val = player.sliding > 0 ? player.sliding : player.sliding * -1
-    const adj = player.sliding != 0 ? player.speed * (val / 10) : player.speed
+    let adj = player.sliding != 0 ? player.speed * (val / 10) : player.speed
+    scrollOffset - adj < 0 ? scrollOffset = 0 : null
 
     if (((controls.right.pressed && player.weaponState == 0) || player.sliding > 0) && (scrollOffset + adj) < finishLine + 10 && player.flipped) {
         scrollOffset += adj
+        scrollStop = overScrollAmount
+        scroll()
+    // If A pressed and player is not at start
+    } else if (((controls.left.pressed && player.weaponState == 0) || player.sliding < 0) && scrollOffset > 0) {
+        console.log('scrolling')
+        adj = adj * -1
+        scrollOffset += adj
+        if (scrollOffset - overScrollAmount * 8 < 0) {
+            scrollStop = 0
+        } else {
+            scrollStop = overScrollAmount * -1
+        }
+        scroll()
+    } else if (scrollStop != 0 && !controls.left.pressed) {
+        player.running = false
+        if (scrollStop > 0) {
+            scrollStop--
+            adj = 8
+        } else {
+            scrollStop++
+            adj = -8
+        }
+        if (scrollOffset + adj < 0) {
+            scrollOffset = 0
+        } else if ( scrollOffset + adj > finishLine - 15) {
+            adj = 0
+        } else {
+            scrollOffset += adj
+        }
+        
+        player.position.x -= adj
+        scroll()
+    }
+
+
+
+    function scroll() {
+        player.velocity.x = 0
+        
         player.running = true
         // Moves each platfrom
         player.projectiles.forEach(dart => {
@@ -169,40 +210,19 @@ export function scrollWorld(player, controls) {
         supplies.forEach(item => {
             item.position.x -= adj
         })
-
-    // If A pressed and player is not at start
-    } else if (((controls.left.pressed && player.weaponState == 0) || player.sliding < 0) && scrollOffset > 0) {
-        scrollOffset - adj < 0 ? scrollOffset = 0 : scrollOffset -= adj
-        player.running = true
-        // Moves each platform
-        background.position.x += adj
-        
-        player.projectiles.forEach(dart => {
-            dart.position.x += adj
-        })
-
-        texts.forEach(txt => {
-            scrollOffset == 0 ? txt.position.x = txt.origin.x : txt.position.x += adj
-        })
-
-        blocks.forEach(block => {
-            scrollOffset == 0 ? block.position.x = block.origin.x : block.position.x += adj
-        })
-        ghosts.forEach(ghst => {
-            ghst.position.x += adj
-        })
-        npcs.forEach(npc => {
-            npc.position.x += adj
-            npc.projectiles.forEach(dart => {
-                dart.position.x += adj
-            })
-        })
-        supplies.forEach(item => {
-            scrollOffset == 0 ? item.position.x = item.origin.x : item.position.x += adj
-        })
-    } else {
-        player.running = false
     }
+
+    
+}
+
+export function overScroll(player, keys) {
+    if (scrollStop != 0) {
+        scrollWorld(player, keys)
+    }
+}
+
+export function resetOverScroll() {
+    scrollStop = 0
 }
 
 export let slideOffset = 0

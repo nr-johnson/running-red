@@ -1,3 +1,8 @@
+/*
+    Script file for managing the game.
+    The functions are called as needed by the main script and objects scripts
+*/
+
 import { Block } from '/static/scripts/objects/block.js'
 import { Background } from '/static/scripts/objects/background.js'
 import { setGameEnd, world } from '/static/scripts/main.js'
@@ -22,20 +27,7 @@ export function newImage(src) {
     })
 }
 
-// Resizes the canvas when window is resized
-export function sizeWindow(canvas, blockRight) {
-    canvas.minWidth = 408
-    canvas.minHeight = 204
-    canvas.width = Math.floor(window.innerWidth * .65)
-    canvas.height = Math.floor(window.innerWidth * .65) / 2
 
-    blockRight = Math.round(canvas.width - 200)
-    // Sets variables to current window size.
-    return {
-        y: window.innerHeight,
-        x: window.innerWidth
-    }
-}
 
 export const blocks = []
 export const npcs = []
