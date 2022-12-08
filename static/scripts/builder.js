@@ -7,7 +7,7 @@
     Each sqaure represents a 24px x 24px space in the final game.
 
     known issue:
-    Sprites (npcs and player) postions are not accurate. They need to be placed above the desired placement or the will be placed below the floor
+        Sprites (npcs and player) postions are not accurate. They need to be placed above the desired placement or the will be placed below the floor
 */
 
 // Main div container
