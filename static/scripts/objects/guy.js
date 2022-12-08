@@ -54,6 +54,7 @@ export class Guy extends Npc {
 
         
         this.health = health ? health : 75
+        this.maxHealth = 75
         this.speed = 2.5
         this.defaultSpeed = this.speed
         this.jumpHeight = 14
@@ -69,7 +70,7 @@ export class Guy extends Npc {
         this.attackDelay = 3
         this.attackTime = false
         
-        this.contact = {mt: 0, t: 0, r: 65, b: 57, l: 30}
+        this.contact = {mt: 0, t: 0, r: this.width - 25, b: this.height - 8, l: 30}
 
     }
 
@@ -79,6 +80,7 @@ export class Guy extends Npc {
             this.damaging = 0
             this.velocity.x = 0
             this.draw(c)
+            this.drawHealthBar(c)
             this.calculateGravity(canvas, terminalVelocity)
             this.detectCollision(this, this.keys, blocks)
             this.deathAnim()
@@ -105,6 +107,7 @@ export class Guy extends Npc {
         this.physics && this.calculateGravity(canvas, terminalVelocity)
 
         this.draw(c)
+        this.drawHealthBar(c)
                 
         this.physics && this.detectCollision(this, this.keys, blocks)
 
@@ -174,12 +177,19 @@ export class Guy extends Npc {
                 const animationRow = 12 + this.attackAnimtionReference
                 const animationLength = animationRow % 2 == 0 ? 5 : 4
                 if (this.isWithin([animationRow,animationLength - 1], [animationRow,animationLength])) {
+                    if ((this.flipped && player.position.x + player.contact.l < this.position.x + (this.width / 2))
+                        || (!this.flipped && player.position.x + player.contact.r > this.position.x + (this.width / 2))
+                    ) {
+                        this.playerInAttackRange = false
+                    }
+
+
                     if(this.playerInAttackRange) {
                         const sound = this.sounds.attack[this.attackAnimtionReference]
                         sound.currentTime = 0
                         sound.volume = .1
                         playAudio(sound)
-                        player.takeDamage(20, this.flipped)
+                        player.takeDamage(15, this.flipped)
                     
                     }
                     this.attackAnimtionReference = randomNumber(0,3);
@@ -235,7 +245,7 @@ export class Guy extends Npc {
     reset() {
         this.projectiles = []
         this.deathFrame = false
-        this.health = 25
+        this.health = 75
         this.revert()
         this.refresh()
     }

@@ -229,20 +229,26 @@ export class Character {
 
     takeDamage(amnt, right) {
         if (this.health <= 0) return
-        this.damaging += amnt
+        let stun = amnt
+        if (this.resiliance) {
+            if (amnt - this.resiliance <= 0) {
+                stun = 0
+            } else {
+                stun = amnt - this.resiliance
+            }
+        }
+        this.damaging += stun
         if (right) {
-            this.velocity.x += 23
+            this.velocity.x += this.knockBack ? this.knockBack : 23
         } else {
-            this.velocity.x -= 23
+            this.velocity.x -= this.knockBack ? this.knockBack : 23
         }
         
         this.updateHealth(amnt * -1)
     }
 
     updateHealth(amnt) {
-        if (this.health + amnt >= 100) {
-            this.health = 100
-        } else if (this.health + amnt <= 0) {
+        if (this.health + amnt <= 0) {
             this.health = 0
         } else {
             this.health += amnt

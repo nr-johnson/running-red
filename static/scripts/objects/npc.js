@@ -46,6 +46,16 @@ export class Npc extends Character {
         
     }
 
+    drawHealthBar(c) {
+        if (this.health < this.maxHealth) {
+            const amnt = this.maxHealth / 50
+            c.fillStyle = 'red'
+            c.fillRect(this.position.x + (this.width / 2) - 25, (this.position.y + this.contact.t) - 10, 50, 3)
+            c.fillStyle = 'green'
+            c.fillRect(this.position.x + (this.width / 2) - 25, (this.position.y + this.contact.t) - 10, this.health / amnt, 3)
+        }
+    }
+
     refresh() {
         this.alive = true
         this.stopped = 1
@@ -158,12 +168,13 @@ export class Npc extends Character {
     detectWorld() {
         if (!this.on.block) return
         if (this.on.block.includes('sprite')) {
-            if (this.keys.left.pressed && this.on.type != 'end') {
+            if (this.keys.left.pressed && this.on.type == 'start') {
                 if (this.position.x + this.contact.l + this.velocity.x <= this.on.left) {
                     this.keys.left.pressed = false
+                    this.velocity.x = 0
                     this.damaging > 0 ? this.velocity.x = 0 : null
                 }
-            } else if (this.keys.right.pressed && this.on.type != 'start') {
+            } else if (this.keys.right.pressed && this.on.type == 'end') {
                 if (this.position.x + this.contact.r + this.velocity.x >= this.on.right) {
                     this.keys.right.pressed = false
                     this.damaging > 0 ? this.velocity.x = 0 : null

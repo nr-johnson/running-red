@@ -1,7 +1,7 @@
 import { Character } from '/static/scripts/objects/baseCharacter.js'
-import { scrollWorld, slideWorld, scrollOffset, randomNumber } from '/static/scripts/objects/objectTools.js'
-import { blockLeft, blockRight, reset } from '/static/scripts/main.js'
-import { blocks, npcs, newImage, playAudio } from '/static/scripts/tools.js'
+import { scrollWorld, slideWorld, scrollOffset, slideOffset, randomNumber } from '/static/scripts/objects/objectTools.js'
+import { blockLeft, blockRight, reset, showGameHasLost, world, gameOver } from '/static/scripts/main.js'
+import { blocks, npcs, newImage, playAudio, playMusic, stopMusic } from '/static/scripts/tools.js'
 import { Projectile } from '/static/scripts/objects/projectile.js'
 
 export class Player extends Character {
@@ -45,7 +45,10 @@ export class Player extends Character {
         this.origin.y = canvas.height - this.contact.b - baseTraits.position.y
 
         this.health = playerTraits.health ? playerTraits.health : 100
+        this.maxhealth = 100
         this.jumpHeight = 18
+        this.arrowCount = 0
+        this.maxarrowCount = 15
         this.flipped = true
         this.running = false
         this.jump = true
@@ -63,8 +66,9 @@ export class Player extends Character {
     async update(c, terminalVelocity, keys, canvas) {
 
         if (this.health <= 0) {
-            reset()
+            showGameHasLost()
         }
+        
 
         if (typeof this.arrow[0] == 'string') {
             this.arrow[0] = await newImage(this.arrow[0])
@@ -86,6 +90,7 @@ export class Player extends Character {
 
         if (this.weaponState == 3) {
             this.weaponState = 0
+            this.arrowCount--
             const arrow = new Projectile({
                 speed: 20,
                 images: this.arrow,
@@ -129,7 +134,7 @@ export class Player extends Character {
         })
 
         if (this.position.y + this.contact.b >= canvas.height - 1) {
-            reset()
+            showGameHasLost()
         }
 
         
@@ -156,6 +161,7 @@ export class Player extends Character {
 
     reset() {
         this.revert()
+        this.arrowCount = 0
         this.health = 100
         this.speed = 5
         this.weaponState = 0
@@ -164,8 +170,26 @@ export class Player extends Character {
         this.projectiles = []
     }
 
+    pickUp(item) {
+        if (this[`max${item.type}`] <= this[item.type]) {
+            return
+        } else {
+            const newCount = this[item.type] + item.count
+            if (newCount >= this[`max${item.type}`]) {
+                this[item.type] = this[`max${item.type}`]
+            } else {
+                this[item.type] = newCount
+            }
+            item.sound.currentTime = 0
+            item.sound.volume = .75
+            playAudio(item.sound)
+            item.collected = true
+        }
+    }
+
     hitTarget(damage) {
         npcs.forEach(npc => {
+            if (!npc.alive) return
             if (!this.hit.includes(npc)) {
                 if(npc.position.y + npc.contact.b < this.position.y + this.contact.mt
                     || npc.position.y + npc.contact.t > this.position.y + this.contact.b) 
@@ -274,6 +298,10 @@ export class Player extends Character {
                 playAudio(sound)
             }
         } else if (this.weaponState == 1 || this.weaponState == 2) {
+            if (this.arrowCount <= 0) {
+                this.weaponState = 0
+                return
+            }
             this.sliding = 0
             // Weapon draw animation
             this.velocity.x = 0
@@ -334,4 +362,13 @@ export class Player extends Character {
             this.frame = [0,0]
         }
     }
+}
+
+function getDangerSounds() {
+    return new Promise(async resolve => {
+        const sound1 = new Audio('/static/sounds/world/da2.wav')
+        const sound2 = new Audio('/static/sounds/world/da1.wav')
+
+        sound1.addEventListener('canplay', resolve([sound1, sound2]))
+    })
 }

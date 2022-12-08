@@ -86,8 +86,19 @@ aside {
     height: 60px;
     background-color: purple;
 }
-.sprite[data-type='cat'] {
-    background-color: yellow;
+.sprite[data-type='skel'] {
+    background-color: green;
+}
+
+.supply {
+    position: absolute;
+    height: 10px;
+    width: 10px;
+    background: yellow;
+    cursor: pointer;
+}
+.supply[data-type="health"], .supply.health {
+    background: red !important;
 }
 
 .b {

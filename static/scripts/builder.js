@@ -9,10 +9,12 @@ let built = false
 let world = {}
 let addingSprite = false
 let addingPlayer = false
+let addingSupply = false
 let previousMousePosition = [0,0]
 let spriteSelected = {}
 const player = document.getElementById('player')
 let sprites = document.querySelectorAll('.sprite')
+let supplies = document.querySelectorAll('.supply')
 const square = document.querySelector('.square')
 
 player.addEventListener('mouseover', e => {
@@ -27,6 +29,8 @@ player.addEventListener('mouseout', e => {
 })
 
 sprites.forEach(sprite => {
+    setSpriteTileCount(sprite)
+    setItemPosition(sprite)
     sprite.addEventListener('mouseover', () => {
         if (!clicking) {
             spriteSelected = sprite
@@ -34,6 +38,21 @@ sprites.forEach(sprite => {
     })
     sprite.addEventListener('mouseout', () => {
         if (spriteSelected == sprite && !clicking) {
+            spriteSelected = {}
+        }
+    })
+})
+
+supplies.forEach(item => {
+    setSpriteTileCount(item)
+    setItemPosition(item)
+    item.addEventListener('mouseover', () => {
+        if (!clicking) {
+            spriteSelected = item
+        }
+    })
+    item.addEventListener('mouseout', () => {
+        if (spriteSelected == item && !clicking) {
             spriteSelected = {}
         }
     })
@@ -47,7 +66,7 @@ function setNewSpritePosition(sprite) {
         sprite.setAttribute('data-left', Math.floor(parseInt(sprite.style.left) / squareRect.width))
         sprite.setAttribute('data-bottom', Math.floor((window.innerHeight - parseInt(sprite.style.top)) / squareRect.height))
 
-        setSpritePosition(sprite)
+        setItemPosition(sprite)
     }
 }
 
@@ -130,7 +149,12 @@ window.addEventListener('keydown', ({ keyCode }) => {
             break
         case 65:
             // a
-            addingSprite = true
+            if (addingSupply) {
+                addSupplyItem('arrows')
+            } else {
+                addingSprite = true
+            }
+            
             break
         case 66:
             // b
@@ -138,11 +162,7 @@ window.addEventListener('keydown', ({ keyCode }) => {
             break
         case 67:
             // c
-            if (addingSprite) {
-                addNewSprite('cat')
-            } else {
-                type.push('c')
-            }
+            type.push('c')
             
             break
         case 68:
@@ -150,7 +170,8 @@ window.addEventListener('keydown', ({ keyCode }) => {
             if (clicking && spriteSelected !== {}) {
                 spriteSelected.remove()
                 spriteSelected = {}
-                sprites = document.querySelectorAll('sprite')
+                sprites = document.querySelectorAll('.sprite')
+                supplies = document.querySelectorAll('.supply')
             }
             break
         case 69:
@@ -163,10 +184,18 @@ window.addEventListener('keydown', ({ keyCode }) => {
                 addNewSprite('guy')
             }
             break
+        case 72:
+            // h
+            if (addingSupply) {
+                addSupplyItem('health')
+            }
+            break
         case 73:
             // i
             if (addingSprite) {
                 addNewSprite('imp')
+            } else {
+                addingSupply = true
             }
             break
         case 76:
@@ -189,12 +218,12 @@ window.addEventListener('keydown', ({ keyCode }) => {
             // s
             if (built) {
                 saveWorldToFile()
+            } else if (addingSprite) {
+                addNewSprite('skel')
+            } else if (blockingEdit) {
+                blocking.push('s')
             } else {
-                if (blockingEdit) {
-                    blocking.push('s')
-                } else {
-                    type.push('s')
-                }
+                type.push('s')
             }
             break
         case 86:
@@ -229,6 +258,10 @@ window.addEventListener('keyup', ({ keyCode }) => {
             // a
             addingSprite = false
             break
+        case 73: {
+            addingSupply = false
+            break
+        }
     }
 })
 
@@ -257,6 +290,18 @@ const saveWorld = () => {
             start: [
                 parseInt(thisSprite.getAttribute('data-left')) * 24 - 24,
                 parseInt(thisSprite.getAttribute('data-bottom')) * 24 + 24
+            ]
+        })
+    }
+
+    world.supplies = []
+    for (let i = 0; i < supplies.length; i++) {
+        const thisItem = supplies[i]
+        world.supplies.push({
+            type: thisItem.getAttribute('data-type'),
+            start: [
+                parseInt(thisItem.getAttribute('data-left')) * 24 - 24,
+                parseInt(thisItem.getAttribute('data-bottom')) * 24 + 24
             ]
         })
     }
@@ -311,6 +356,26 @@ const saveWorldToFile = () => {
     htp.send(JSON.stringify(world))
 }
 
+function addSupplyItem(type) {
+    const div = document.createElement('div')
+    div.classList = `supply ${type}`
+    div.setAttribute('data-left', 0)
+    div.setAttribute('data-bottom', 0)
+    div.setAttribute('data-type', type)
+    main.append(div)
+    supplies = document.querySelectorAll('.supply')
+    div.addEventListener('mouseover', () => {
+        if (!clicking) {
+            spriteSelected = div
+        }
+    })
+    div.addEventListener('mouseout', () => {
+        if (spriteSelected == div && !clicking) {
+            spriteSelected = {}
+        }
+    })
+}
+
 function addNewSprite(type) {
     const div = document.createElement('div')
     div.classList = `sprite ${type}`
@@ -331,14 +396,16 @@ function addNewSprite(type) {
     })
 }
 
-function setSpritePosition(sprite) {
+function setItemPosition(item) {
     const squareRect = square.getBoundingClientRect()
 
-    const spriteSetLeft = parseInt(sprite.getAttribute('data-left'))
-    const spriteSetTop = parseInt(sprite.getAttribute('data-bottom'))
+    const itemSetLeft = parseInt(item.getAttribute('data-left'))
+    const itemSetTop = parseInt(item.getAttribute('data-bottom'))
 
-    sprite.style.left = `${spriteSetLeft * squareRect.width}px`
-    sprite.style.top = `${window.innerHeight - (spriteSetTop * squareRect.height) - 20}px`
+    const itemRect = item.getBoundingClientRect()
+
+    item.style.left = `${itemSetLeft * squareRect.width}px`
+    item.style.top = `${window.innerHeight - (itemSetTop * squareRect.height) - itemRect.width}px`
     
 }
 
@@ -348,12 +415,7 @@ function setSpriteTileCount(sprite) {
 }
 
 setSpriteTileCount(player)
-setSpritePosition(player)
-
-sprites.forEach(sprite => {
-    setSpriteTileCount(sprite)
-    setSpritePosition(sprite)
-})
+setItemPosition(player)
 
 window.addEventListener('resize', () => {
     const squareRect = square.getBoundingClientRect()
@@ -361,8 +423,11 @@ window.addEventListener('resize', () => {
     document.documentElement.style.setProperty('--square-w', squareRect.width);
     document.documentElement.style.setProperty('--square-h', squareRect.height);
 
-    setSpritePosition(player)
+    setItemPosition(player)
     sprites.forEach(sprite => {
-        setSpritePosition(sprite)
+        setItemPosition(sprite)
+    })
+    supplies.forEach(item => {
+        setItemPosition(item)
     })
 })

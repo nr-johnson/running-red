@@ -1,5 +1,5 @@
 import { finishLine } from '/static/scripts/main.js'
-import { blocks, npcs, ghosts, texts, background } from '/static/scripts/tools.js'
+import { blocks, npcs, ghosts, texts, supplies,  background } from '/static/scripts/tools.js'
 
 // spriteect collision
 // Ok... Phew... Lots of conditionals here
@@ -166,6 +166,10 @@ export function scrollWorld(player, controls) {
                 dart.position.x -= adj
             })
         })
+        supplies.forEach(item => {
+            item.position.x -= adj
+        })
+
     // If A pressed and player is not at start
     } else if (((controls.left.pressed && player.weaponState == 0) || player.sliding < 0) && scrollOffset > 0) {
         scrollOffset - adj < 0 ? scrollOffset = 0 : scrollOffset -= adj
@@ -178,11 +182,11 @@ export function scrollWorld(player, controls) {
         })
 
         texts.forEach(txt => {
-            txt.position.x += adj
+            scrollOffset == 0 ? txt.position.x = txt.origin.x : txt.position.x += adj
         })
 
         blocks.forEach(block => {
-            block.position.x += adj
+            scrollOffset == 0 ? block.position.x = block.origin.x : block.position.x += adj
         })
         ghosts.forEach(ghst => {
             ghst.position.x += adj
@@ -193,12 +197,15 @@ export function scrollWorld(player, controls) {
                 dart.position.x += adj
             })
         })
+        supplies.forEach(item => {
+            scrollOffset == 0 ? item.position.x = item.origin.x : item.position.x += adj
+        })
     } else {
         player.running = false
     }
 }
 
-let slideOffset = 0
+export let slideOffset = 0
 let pass = 2
 let slideStop = 0
 let change = 0
@@ -241,6 +248,9 @@ export function slideWorld(player, canvas, terminalVelocity) {
 
         blocks.forEach(block => {
             block.position.y += change
+        })
+        supplies.forEach(item => {
+            item.position.y += change
         })
     }
 

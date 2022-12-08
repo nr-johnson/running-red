@@ -1,11 +1,13 @@
 import { Block } from '/static/scripts/objects/block.js'
 import { Background } from '/static/scripts/objects/background.js'
-import { setGameEnd } from '/static/scripts/main.js'
+import { setGameEnd, world } from '/static/scripts/main.js'
 import { Imp } from '/static/scripts/objects/imp.js'
 import { Guy } from '/static/scripts/objects/guy.js'
+import { Skeleton } from '/static/scripts/objects/skeleton.js'
 import { Wall } from '/static/scripts/objects/invisibleWall.js'
 import { Ghost } from '/static/scripts/objects/ghost.js'
 import { Text } from '/static/scripts/objects/text.js'
+import { PickupItem } from '/static/scripts/objects/supplies.js'
 import { showMessage, clearMessage } from '/static/scripts/page.js'
 
 
@@ -39,8 +41,8 @@ export const blocks = []
 export const npcs = []
 export const ghosts = []
 export const texts = []
+export const supplies = []
 
-const sounds = []
 export const background = new Background()
 
 export function buildWorld(map, canvas) {
@@ -73,6 +75,8 @@ export function buildWorld(map, canvas) {
                 newNPC = new Imp(params, {...npc, index}, canvas)
             } else if (npc.type == 'guy') {
                 newNPC = new Guy(params, {...npc, index}, canvas)
+            } else if (npc.type == 'skel') {
+                newNPC = new Skeleton(params, {...npc, index}, canvas)
             }
             npcs.push(newNPC)
         })
@@ -84,6 +88,24 @@ export function buildWorld(map, canvas) {
                 frames: ghst.frames,
                 frame: ghst.frame ? ghst.frame : null
             }, ghst, canvas))
+        })
+
+        map.supplies && map.supplies.forEach(item => {
+            if (item.type == 'arrows') {
+                supplies.push(new PickupItem({
+                    type: 'arrowCount',
+                    position: [item.start[0], item.start[1]],
+                    count: 5,
+                    image: '/static/images/objects/world/Arrow Icon_multiple.png'
+                }, canvas))
+            } else if (item.type == 'health') {
+                supplies.push(new PickupItem({
+                    type: 'health',
+                    position: [item.start[0], item.start[1]],
+                    count: 50,
+                    image: '/static/images/objects/world/Health Pack Icon.png'
+                }, canvas))
+            }
         })
         
         resolve()
@@ -105,23 +127,42 @@ export function playAudio(audio) {
 }
 
 let si = 0
+let currentSoundTract = ''
+let musicIsStopped = false
 let notified = false
+let sounds = []
 
-export function playMusic(songs) {
-    songs.forEach(song => {
-        sounds.push(new Audio(`/static/sounds/world/${song}.wav`))
-    })
+export function playMusic(newTract) {
+    if (newTract == currentSoundTract && !musicIsStopped) return
+    musicIsStopped = false
+    currentSoundTract = newTract
+    sounds.length > 0 && stopMusic()
+    sounds = world.sounds[newTract]
+    // songs.forEach(song => {
+    //     sounds.push(new Audio(`/static/sounds/world/${song}.wav`))
+    // })
     playSounds()
 }
 
 function playSounds() {
-    sounds[si].volume = .5
+    if (musicIsStopped) return
+    currentSoundTract == 'danger' ? sounds[si].volume = 1 : sounds[si].volume = .5
     playAudio(sounds[si])
     sounds[si].addEventListener('ended', () => {
+        sounds.forEach(sound => {
+            sound.pause()
+        })
         si + 1 >= sounds.length ? si = 0 : si++
         playSounds()
-    }) 
-    
+    })
+}
+
+export function stopMusic() {
+    musicIsStopped = true
+    sounds.forEach(sound => {
+        sound.pause()
+    })
+    sounds = []
 }
 
 export function drawWorld(c, canvas, scroll, end, terminalVelocity) {
@@ -149,6 +190,13 @@ export function drawWorld(c, canvas, scroll, end, terminalVelocity) {
         const dist = 150
         if (npc.position.x + npc.width > dist * -1 && npc.position.x < canvas.width + dist && npc.position.y + npc.height > dist * -1 && npc.position.y < canvas.height + dist) {
             npc.alive && npc.update(c, canvas, terminalVelocity)
+        }
+    })
+
+    supplies.forEach(item => {
+        
+        if (item.position.x + item.width > 0 && item.position.x < canvas.width && item.position.y + item.height > 0 && item.position.y < canvas.height) {
+            item.update(c)
         }
     })
 }

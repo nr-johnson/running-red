@@ -29,6 +29,7 @@ def build():
             worldData['dimensions'] = postedData['dimensions']
             worldData['player']['start'] = postedData['player']['start']
             worldData['npcs'] = postedData['sprites']
+            worldData['supplies'] = postedData['supplies']
             json.dump(worldData, worldFile)
 
         return 'Game Level Saved!'

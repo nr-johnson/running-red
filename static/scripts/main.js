@@ -1,6 +1,6 @@
 import { Player } from '/static/scripts/objects/player.js'
 import { renderUI } from '/static/scripts/UI/uiMain.js'
-import { newImage, buildWorld, drawWorld, blocks, npcs, ghosts, texts, getLevel, playMusic } from '/static/scripts/tools.js'
+import { newImage, buildWorld, drawWorld, blocks, npcs, ghosts, supplies, texts, getLevel, playAudio, playMusic, stopMusic } from '/static/scripts/tools.js'
 import { scrollOffset, resetScroll } from '/static/scripts/objects/objectTools.js'
 
 // Canvas div
@@ -24,9 +24,10 @@ export let finishLine = 1500 // Length to scroll before winning
 export const blockLeft = 100
 export const blockRight = Math.round(canvas.width - 200)
 export const gravity = 1.75 // Fall speed
+let playing = false
 let paused = false
 const terminalVelocity = 20
-let gameOver = false
+export let gameOver = false
 
 
 // Values for if the user is pressing the A or D keys
@@ -51,6 +52,9 @@ export const keys = {
     }
 }
 
+
+
+
 /*
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,14 +65,27 @@ export const keys = {
 
 export let player
 let images = {}
-let world = await getLevel()
+export let world = await getLevel()
+
+function loadWorld() {
+    return new Promise(async resolve => {
+        for (const key in world.sounds) {
+            world.sounds[key] = await world.sounds[key].map(sound => {
+                return new Audio(`/static/sounds/world/${sound}.wav`)
+            })
+        }
+        resolve()
+    })
+    
+}
+await loadWorld()
 
 const initiateButton = document.getElementById('initiateButton')
 initiateButton.addEventListener('click', () => {
     initiate()
 })
 
-playMusic(world.sounds)
+playMusic('light')
 
 async function initiate() {
     main.classList.add('loading')
@@ -90,6 +107,7 @@ async function initiate() {
 
     // Initiates the game
     animate()
+    playing = true
     document.getElementById('ui').classList.remove('hide') 
 }
 
@@ -115,12 +133,7 @@ function animate() {
 
         // Udates player
         player.update(c, terminalVelocity, keys, canvas)
-        // Marks game win
-        if (scrollOffset >= finishLine && !gameOver) {
-            gameOver = true
-            player.position.x = player.position.x -1
-            console.log('you win')
-        }
+
         main.classList.remove('loading')
     }, fpsInterval);
 
@@ -138,6 +151,10 @@ main.classList.add('loaded')
 */
 
 export function reset() {
+    gameOver = false
+
+    playMusic('light')
+
     resetScroll()
 
     blocks.forEach(blk => {
@@ -155,14 +172,31 @@ export function reset() {
     texts.forEach(txt => {
         txt.reset()
     })
+    supplies.forEach(item => {
+        item.reset()
+    })
+
+    
+
+    paused = false
+    console.log('hello!')
 }
 
 
 
 // Detects key presses
-window.addEventListener('keydown', ({ keyCode }) => {
-    // console.log(keyCode)
+window.addEventListener('keydown', e => {
+    const keyCode = e.keyCode
+    console.log(keyCode)
     switch (keyCode) {
+        case 13:
+            //  Esc
+            !playing && initiate()
+            break
+        case 27:
+            //  Esc
+            playing && pauseGame()
+            break
         case 38:
         case 32:
         case 87:
@@ -177,6 +211,7 @@ window.addEventListener('keydown', ({ keyCode }) => {
                 player.attacking = false
                 player.weaponState = 0
             }
+            e.preventDefault()
             break
         case 97:
         case 70:
@@ -217,6 +252,7 @@ window.addEventListener('keydown', ({ keyCode }) => {
             // Down
             // S
             // Ctrl
+            e.preventDefault()
             if (player.running && !keys.down.pressed && player.sliding == 0) {
                 player.flipped ? player.sliding = 24 : player.sliding = -24
             }
@@ -285,11 +321,23 @@ window.addEventListener('keyup', ({ keyCode }) => {
 })
 
 const pauseButton = document.getElementById('pauseButton')
-pauseButton.addEventListener('click', () => {
+const resumeButton = document.getElementById('closeMenu')
+const resetButton = document.getElementById('resetGame')
+pauseButton.addEventListener('click', pauseGame)
+
+resumeButton.addEventListener('click', pauseGame)
+
+resetButton.addEventListener('click', () => {
+    toggleGameOverMenu()
+    reset()
+    animate()
+})
+
+function pauseGame() {
     paused = !paused
     pauseButton.classList.toggle('paused')
     animate()
-})
+}
 
 // Window resize event listener.
 // window.addEventListener('resize', () => {
@@ -308,4 +356,39 @@ pauseButton.addEventListener('click', () => {
 
 export function setGameEnd(end) {
     finishLine = end
+}
+
+const gameWonAudio = new Audio('/static/sounds/world/win.wav')
+export function showGameHasWon() {
+    stopMusic()
+    paused = true
+    gameOver = true
+    toggleGameOverMenu(`
+        <h3>Congradulations</h3>
+        <h4>You Won!</h4>\<p>Thank you for playing my game.</p>
+    `, 'gamewon')
+    gameWonAudio.paused && playAudio(gameWonAudio)
+}
+
+const gameOverAudio = new Audio('/static/sounds/world/lose.wav')
+export function showGameHasLost() {
+    stopMusic()
+    paused = true
+    gameOver = true
+    toggleGameOverMenu(`
+        <img class="death-image" src="/static/images/ui/death.png">
+        <h3>You died...</h3>
+    `, 'gameover')
+    gameOverAudio.paused && playAudio(gameOverAudio)
+}
+
+function toggleGameOverMenu(msg, clas) {
+    const box = document.getElementById('gameOverMenu')
+    if (!clas) {
+        box.classList = ''
+    } else {
+        box.children[0].innerHTML = msg
+        box.classList = `show ${clas}`
+    }
+    
 }
