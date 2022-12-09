@@ -162,6 +162,7 @@ window.addEventListener('mousedown', e => {
 window.addEventListener('mouseup', () => {
     // set clicking to false
     clicking = false
+    dragging && setNewSpritePosition(elementSelected)
     // reset selected element variable
     elementSelected = {}
     // set dragging to false
@@ -245,6 +246,7 @@ window.addEventListener('keydown', ({ keyCode }) => {
                 elementSelected = {}
                 sprites = document.querySelectorAll('.sprite')
                 supplies = document.querySelectorAll('.supply')
+                dragging = false
             }
             break
         case 69:

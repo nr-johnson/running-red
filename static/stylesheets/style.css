@@ -152,7 +152,7 @@ canvas, #background {
 
 #closeMenu, #resetGame {
   position: absolute;
-  bottom: 8rem;
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
   padding: .25rem .5rem .25rem .5rem;
@@ -166,7 +166,6 @@ canvas, #background {
 }
 #resetGame {
   bottom: 10rem;
-  margin-left: .75rem;
 }
 
 #closeMenu:hover, #resetGame:hover {
@@ -181,20 +180,28 @@ canvas, #background {
   transform: translate(-50%, -50%);
   color: white;
 
-  background-image: url('/static/images/ui/UI Box_Large.png');
+  /* background-image: url('/static/images/ui/UI Box_Large.png');
   background-position: center;
-  background-repeat: no-repeat;
+  background-repeat: no-repeat; */
 
   opacity: 0;
   pointer-events: none;
   height: 100%;
   width: 100%;
-  overflow: hidden;
 
   padding: 1rem;
 }
+#menu h3 {
+  text-align: center;
+}
 #menu div {
-  padding: 2.5rem 7rem;
+  position: relative;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 75%;
+  height: 85%;
+  overflow-y: scroll;
 }
 
 #menu p {
@@ -211,9 +218,9 @@ canvas, #background {
   transform: translate(-50%, -50%);
   color: white;
 
-  background-image: url('/static/images/ui/UI Box_Small.png');
+  /* background-image: url('/static/images/ui/UI Box_Small.png');
   background-position: center;
-  background-repeat: no-repeat;
+  background-repeat: no-repeat; */
 
   opacity: 0;
   pointer-events: none;
@@ -232,7 +239,7 @@ canvas, #background {
 }
 #gameOverMenu div {
   position: relative;
-  padding: 9rem 18.5rem 9rem 20rem;
+  padding-top: 9rem;
   text-align: center;
 }
 #gameOverMenu.show {
@@ -252,10 +259,56 @@ canvas, #background {
     width: 720px;
     height: 360px;
   }
+  #initiateButton {
+    bottom: 3rem;
+  }
+  #healthbar {
+    width: 11.25rem;
+    left: 15px;
+    top: 16px;
+  }
+  #gameOverMenu div {
+    padding-top: 7rem;
+  }
+  #gameOverMenu h3 {
+    margin-top: 4px;
+  }
+  .death-image {
+    height: 2rem;
+  }
+  #resetGame {
+    bottom: 7.5rem;
+  }
 }
 @media (max-width: 740px) {
   #game {
     width: 480px;
     height: 240px;
+  }
+  #initiateButton {
+    bottom: 1rem;
+  }
+  #healthbar {
+    width: 7.7rem;
+    left: 8px;
+    top: 10px;
+  }
+  #gameOverMenu div {
+    padding-top: 4.25rem;
+    font-size: 10pt;
+  }
+  #gameOverMenu p {
+    margin-top: 2px;
+    font-size: 9pt;
+  }
+  #gameOverMenu h4 {
+    margin-bottom: 2px;
+  }
+  .death-image {
+    height: 2rem;
+  }
+  #resetGame {
+    bottom: 5rem;
+    font-size: 7pt;
   }
 }

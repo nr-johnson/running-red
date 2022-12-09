@@ -138,7 +138,7 @@ let scrollStop = 0
 export function scrollWorld(player, controls) {
     // Scrolls platforms opposite of player movement when player is at stopping points (simulates progression)
     // If D pressed and not at winning location
-    const overScrollAmount = 32
+    const overScrollAmount = 15
     const val = player.sliding > 0 ? player.sliding : player.sliding * -1
     let adj = player.sliding != 0 ? player.speed * (val / 10) : player.speed
     scrollOffset - adj < 0 ? scrollOffset = 0 : null

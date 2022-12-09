@@ -1,6 +1,6 @@
 import { Character } from '/static/scripts/objects/baseCharacter.js'
 import { scrollWorld, overScroll, resetOverScroll, slideWorld, scrollOffset, slideOffset, randomNumber } from '/static/scripts/objects/objectTools.js'
-import { blockLeft, blockRight, reset, showGameHasLost, world, gameOver } from '/static/scripts/main.js'
+import { blockLeft, blockRight, reset, showGameHasLost, finishLine, gameOver } from '/static/scripts/main.js'
 import { blocks, npcs, newImage, playAudio, playMusic, stopMusic } from '/static/scripts/tools.js'
 import { Projectile } from '/static/scripts/objects/projectile.js'
 
@@ -142,7 +142,7 @@ export class Player extends Character {
         if (this.damaging > 0) return
         if (keys.left.pressed && this.position.x < blockLeft && this.damaging <= 0 && scrollOffset > 0) {
             scrollWorld(this, this.keys)
-        } else if (keys.right.pressed && this.position.x > blockRight && this.damaging <= 0) {
+        } else if (keys.right.pressed && this.position.x > blockRight && this.damaging <= 0 && scrollOffset < finishLine) {
             scrollWorld(this, this.keys)
         } else {
             

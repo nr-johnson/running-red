@@ -1,8 +1,13 @@
-import { canvas, player } from '/static/scripts/main.js'
+import { canvas, player, paused } from '/static/scripts/main.js'
 
 const uiCanvas = document.getElementById('uiCanvas')
-const arrowIcon = new Image()
-arrowIcon.src = '/static/images/objects/world/Arrow Icon.png'
+const uiImage = new Image()
+uiImage.src = '/static/images/ui/Healthbar.png'
+
+const largeMessageBoard = new Image()
+largeMessageBoard.src = '/static/images/ui/UI Box_Large.png'
+const smallMessageBoard = new Image()
+smallMessageBoard.src = '/static/images/ui/UI Box_Small.png'
 
 const ui = uiCanvas.getContext('2d')
 
@@ -25,8 +30,14 @@ export function renderUI() {
     ui.font = "18px sans-serif";
     const count = player.arrowCount
     ui.fillText(count, count > 9 ? 65 : 70, 63);
-    
-    // for (let i = 0; i < player.arrowCount; i++) {
-    //     ui.drawImage(arrowIcon, 30 + (10 * i), 40)
-    // }
+
+    ui.drawImage(uiImage, 20, 21)
+}
+
+export function renderPause(canvas) {
+    ui.drawImage(largeMessageBoard, 0, 0, canvas.width, canvas.height)
+}
+
+export function renderGameOver(canvas) {
+    ui.drawImage(smallMessageBoard, -10, 0, canvas.width, canvas.height)
 }

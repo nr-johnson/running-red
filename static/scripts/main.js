@@ -6,7 +6,7 @@
 // Main player objects
 import { Player } from '/static/scripts/objects/player.js'
 // UI rendering function
-import { renderUI } from '/static/scripts/UI/uiMain.js'
+import { renderUI, renderPause, renderGameOver } from '/static/scripts/UI/uiMain.js'
 // Various tools (functions) for managing the game
 import { newImage, buildWorld, drawWorld, blocks, npcs, ghosts, supplies, texts, background, getLevel, playAudio, playMusic, stopMusic } from '/static/scripts/tools.js'
 // Variouse tools (functions) for managing objects, npcs and player
@@ -27,13 +27,13 @@ canvas.height = gameSize.height
 
 // Variables for variouse game aspects
 // Distance from left edge of screen where screen will begin to scroll
-export const blockLeft = 100
+export const blockLeft = Math.round((canvas.width / 2) - 175)
 // Distance from right edge of screen where screen will begin to scroll
-export const blockRight = Math.round(canvas.width - 200)
+export const blockRight = Math.round((canvas.width / 2) + 75)
 export const gravity = 1.75 // Fall speed
 // If game has been initiated and is not paused
 let playing = false
-let paused = false
+export let paused = false
 // Max fall speed
 const terminalVelocity = 20
 // Game has ended?
@@ -144,7 +144,11 @@ function animate() {
     // Timeout used to slow down framerate
     setTimeout(() => {
         // If game is not paused, recursivly call animate function again.
-        if (!paused) {
+        
+        if (paused) {
+            !gameOver ? renderPause(canvas) : renderGameOver(canvas)
+            return
+        } else {
             requestAnimationFrame(animate);
         }
         
@@ -165,39 +169,6 @@ function animate() {
     document.getElementById('ui').classList.add('show')
     // Hides the loading animation
     main.classList.remove('loading')
-}
-
-// Function to reset the game to original state
-export function reset() {
-    gameOver = false
-    resetOverScroll()
-    // Ensures original sound tract is playing
-    playMusic('light')
-
-    resetScroll()
-
-    background.reset()
-
-    blocks.forEach(blk => {
-        blk.reset()
-    })
-
-    player.reset()
-    
-    npcs.forEach(npc => {
-        npc.reset()
-    })
-    ghosts.forEach(ghst => {
-        ghst.reset()
-    })
-    texts.forEach(txt => {
-        txt.reset()
-    })
-    supplies.forEach(item => {
-        item.reset()
-    })
-
-    paused = false
 }
 
 /*
@@ -356,17 +327,11 @@ window.addEventListener('keyup', ({ keyCode }) => {
 
 
 const pauseButton = document.getElementById('pauseButton')
-const resumeButton = document.getElementById('closeMenu')
 const resetButton = document.getElementById('resetGame')
 
 // Toggle game pause when pause button is pressed
 pauseButton.addEventListener('click', () => {
     pauseGame()
-})
-
-// Resume game when resume button (in pause menu) is pressed
-resumeButton.addEventListener('click', () => {
-    pauseGame(true)
 })
 
 // Resets game when the reload button (in gameover of game won menu) is pressed
@@ -383,15 +348,16 @@ function pauseGame(resumeGame) {
     // Prevents game from unpausing if the game is over
     if (gameOver) return
     // ensure the game is resumed and not repaused when resume button is pressed
-    if (resumeGame) {
-        paused = false
-        pauseButton.classList.remove('paused')
-        animate()
-        return
-    }
+    // if (resumeGame) {
+    //     paused = false
+    //     pauseButton.classList.remove('paused')
+    //     animate()
+    //     return
+    // }
     // Toggles game pause state
     paused = !paused
     pauseButton.classList.toggle('paused')
+    
     animate()
 }
 
@@ -406,6 +372,11 @@ const gameWonAudio = new Audio('/static/sounds/world/win.wav')
 export function showGameHasWon() {
     // Stops current sound tract. Lives in tools script
     stopMusic()
+    
+    // Plays victory audio once loaded
+    gameWonAudio.addEventListener('canplay', playAudio(gameWonAudio))
+    // If multiple victories in one game session, this allows the audio to repeat each time, if not already playing
+    gameWonAudio.paused && playAudio(gameWonAudio)
     // passes and ends game
     paused = true
     gameOver = true
@@ -414,8 +385,7 @@ export function showGameHasWon() {
         <h3>Congradulations</h3>
         <h4>You Won!</h4>\<p>Thank you for playing my game.</p>
     `, 'gamewon')
-    // Plays victory sound is not already playing
-    gameWonAudio.paused && playAudio(gameWonAudio)
+    
 }
 
 // shows game lose senario. Called player object script whenever player dies
@@ -423,6 +393,11 @@ const gameOverAudio = new Audio('/static/sounds/world/lose.wav')
 export function showGameHasLost() {
     // Stops current sound tract
     stopMusic()
+
+    // Plays game over audio once loaded
+    gameOverAudio.addEventListener('canplay', playAudio(gameOverAudio))
+    // If multiple deaths in one game session, this allows the audio to repeat each time, if not already playing
+    gameOverAudio.paused && playAudio(gameOverAudio)
     //  pauses and ends game
     paused = true
     gameOver = true
@@ -431,8 +406,7 @@ export function showGameHasLost() {
         <img class="death-image" src="/static/images/ui/death.png">
         <h3>You died...</h3>
     `, 'gameover')
-    // Plays game over audio if not already playing
-    gameOverAudio.paused && playAudio(gameOverAudio)
+    
 }
 
 // Function to open game over menu (vitory or defeat)
@@ -450,4 +424,41 @@ function toggleGameOverMenu(msg, clas) {
     }
     
     
+}
+
+// Function to reset the game to original state
+export function reset() {
+    gameOver = false
+    resetOverScroll()
+    // Ensures original sound tract is playing
+    playMusic('light')
+    gameOverAudio.pause()
+    gameOverAudio.currentTime = 0
+    gameWonAudio.pause()
+    gameWonAudio.currentTime = 0
+
+    resetScroll()
+
+    background.reset()
+
+    blocks.forEach(blk => {
+        blk.reset()
+    })
+
+    player.reset()
+    
+    npcs.forEach(npc => {
+        npc.reset()
+    })
+    ghosts.forEach(ghst => {
+        ghst.reset()
+    })
+    texts.forEach(txt => {
+        txt.reset()
+    })
+    supplies.forEach(item => {
+        item.reset()
+    })
+
+    paused = false
 }
