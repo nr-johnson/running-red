@@ -7,7 +7,7 @@
     Each sqaure represents a 24px x 24px space in the final game.
 
     known issue:
-        Sprites (npcs and player) postions are not accurate. They need to be placed above the desired placement or the will be placed below the floor
+        Sprites (npcs and player) postions are not accurate. They need to be placed above the desired placement or the will be rendered below the floor in game
 */
 
 // Main div container
@@ -480,12 +480,17 @@ const saveWorldToFile = () => {
 // adds supply item to page
 function addSupplyItem(type) {
     const div = document.createElement('div')
+    // Sets class tot he type (adds correct background image)
     div.classList = `supply ${type}`
+    // Set attributes
     div.setAttribute('data-left', 0)
     div.setAttribute('data-bottom', 0)
     div.setAttribute('data-type', type)
+    // adds supply to page
     main.append(div)
+    // Re-queries supplies variable
     supplies = document.querySelectorAll('.supply')
+    // Adds event listeners to supply item
     div.addEventListener('mouseover', () => {
         if (!clicking) {
             elementSelected = div
@@ -501,12 +506,17 @@ function addSupplyItem(type) {
 // adds npc to page
 function addNewSprite(type) {
     const div = document.createElement('div')
+    // Adds sprite type (sets color)
     div.classList = `sprite ${type}`
+    // Sets attributes
     div.setAttribute('data-left', 0)
     div.setAttribute('data-bottom', 0)
     div.setAttribute('data-type', type)
+    // Adds sprite to page
     main.append(div)
+    // Re-queries sprites variable
     sprites = document.querySelectorAll('.sprite')
+    // Add event listeners to sprite.
     div.addEventListener('mouseover', () => {
         if (!clicking) {
             elementSelected = div
@@ -521,13 +531,17 @@ function addNewSprite(type) {
 
 // moves item on page based on the items dom attributes
 function setItemPosition(item) {
+    // Size of each block in the screen. Used to calculate position
     const squareRect = square.getBoundingClientRect()
 
+    // Gets position from attributes
     const itemSetLeft = parseInt(item.getAttribute('data-left'))
     const itemSetTop = parseInt(item.getAttribute('data-bottom'))
 
+    // Gets absolute position in the window
     const itemRect = item.getBoundingClientRect()
 
+    // Calculates final position
     item.style.left = `${itemSetLeft * squareRect.width}px`
     item.style.top = `${window.innerHeight - (itemSetTop * squareRect.height) - itemRect.width}px`
     
@@ -545,15 +559,13 @@ setItemPosition(player)
 
 // moves all items when window is being resized
 window.addEventListener('resize', () => {
-    const squareRect = square.getBoundingClientRect()
-
-    document.documentElement.style.setProperty('--square-w', squareRect.width);
-    document.documentElement.style.setProperty('--square-h', squareRect.height);
-
+    // Set play position
     setItemPosition(player)
+    // Sets position of each psrite
     sprites.forEach(sprite => {
         setItemPosition(sprite)
     })
+    // Sets position of each supply item
     supplies.forEach(item => {
         setItemPosition(item)
     })

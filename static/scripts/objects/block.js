@@ -1,3 +1,5 @@
+// Object for blocks that characters collide with
+
 import { canvas } from '/static/scripts/main.js'
 
 // Blocks with collision
@@ -22,7 +24,7 @@ export class Block {
         this.width = width
         this.height = height
 
-        // Original values entered for position. Used to calculate position on window resize
+        // Original values entered for position. Used to set position on reset
         this.origin = {
             x: position.x,
             y: canvas.height - position.y

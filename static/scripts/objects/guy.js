@@ -1,13 +1,19 @@
+/*
+    Guy enemy type
+*/
+
 import { Npc } from '/static/scripts/objects/npc.js'
 import { blocks, playAudio, newImage } from '/static/scripts/tools.js'
 import { randomNumber } from '/static/scripts/objects/objectTools.js' 
 import { player } from '/static/scripts/main.js'
+
 
 const defaultImages = [
     await newImage("/static/images/sprites/Guy Sprite Sheet_flipped.png"),
     await newImage("/static/images/sprites/Guy Sprite Sheet.png")
 ]
 
+// Actions for the npc if not interacting with player
 const defaultAnimations = [
     {"key": ["left"], "time": 115},
     {"key": false, "time": 200},
@@ -17,6 +23,7 @@ const defaultAnimations = [
     {"key": false, "time": 200}
 ]
  
+// extends Npc object
 export class Guy extends Npc {
     constructor({ images, position, frames, frame }, { health, animations, index }, canvas) {
         super(
@@ -35,6 +42,7 @@ export class Guy extends Npc {
             canvas
         )
 
+        // Sounds for character actions
         this.sounds = {
             run: [
                 new Audio('/static/sounds/player/run/run0.wav'),
@@ -58,24 +66,33 @@ export class Guy extends Npc {
         this.speed = 2.5
         this.defaultSpeed = this.speed
         this.jumpHeight = 14
+        // Speed to move when character is slowed (crouch speed)
         this.slow = .25
-        this.detectionRaius = 200
+        // Radius within which npc will move toward player
+        this.detectionRaius = 250
         this.interactive = true
         this.physics = true
+        // Distance from player the npc will stop
         this.trackingStop = 10
+        // Distance from player the npc will attach from
         this.attackRange = 10
+        
         this.attackAnimtionReference = 0
         this.playerInAttackRange = false
 
         this.attackDelay = 3
         this.attackTime = false
         
+        // position from the edge of the sprite image where the character pixels reside and therefore should iteract from
         this.contact = {mt: 0, t: 0, r: this.width - 25, b: this.height - 8, l: 30}
 
     }
 
     async update(c, canvas, terminalVelocity) {
+        // if dead, dont do anything
         if (!this.alive) return
+
+        // if just killed, play death animation
         if (this.health <= 0) {
             this.damaging = 0
             this.velocity.x = 0
@@ -88,14 +105,19 @@ export class Guy extends Npc {
             return
         }
 
+        // detect if player is within detection range
         this.findTarget(player)
         
+        // if character is within range, follow character, else continue with base animation
         this.tracking ? this.damaging <= 0 && this.attack(player) : this.action()
 
+        // ledge detection
         this.detectWorld()
 
+        // set sprite sheet frame
         this.setFrame()
 
+        // Stops character movement despite provided commands
         if ((this.stopped == 4 || this.stopped == 2) && this.jump == true) {
             this.jump = false
             this.stopped = 1
@@ -115,9 +137,11 @@ export class Guy extends Npc {
             this.jump = true
         }
         
+        // Moves character with simulated key presses
         this.control(this.keys)
     }
 
+    // Attempt to attack player
     attack(target) {
         const dif = 30
         let inRange = false
