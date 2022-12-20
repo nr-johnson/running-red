@@ -189,8 +189,16 @@ window.addEventListener('keydown', e => {
     // console.log(keyCode)
     switch (keyCode) {
         case 13:
-            //  Enter - Starts game from splash screen
-            !playing && initiate()
+            // Enter
+            e.preventDefault()
+            if (gameOver) {
+                toggleGameOverMenu
+                reset()
+            }if (paused) {
+                pauseGame()
+            } else if (!playing) {
+                initiate()
+            }
             break
         case 27:
             //  Esc - Pauses game

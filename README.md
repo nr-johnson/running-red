@@ -11,9 +11,13 @@
 ---
 
 ## Description:
-Running Red is a web based platform game where you control a character through jumping puzzles and enemies. I kind of got carried away with it and the project got rather large.
+Running Red is a web based platform game where you control a character through jumping puzzles and enemies. I kind of got carried away with it and the project got rather large. I created this as my final project for Harvard's CS50 Introduction to Computer Science course.
 
 Right now it is only one level with a final boss fight. But I built it so that expanding the game would be relatively simple.
+
+It is a flask app that loads two pages, the game and the builder (see below).
+
+The game and builder depend heavily on front end javascript but also make Ajax requests to the server to save and retrieve data.
 
 ---
 
@@ -62,7 +66,7 @@ Collision is called by the character objects and loops through each block, detec
 ## World Builder
 NOTE: I have disabled the builder's ability to save changes for this demo.
 
-I built a dev tool to more easily edit the main gameplay level. It can be found by navigating to `/builder`
+I built a dev tool to more easily edit the main gameplay level. It can be found by navigating to `/build`
 
 This tool allows me to easily paint blocks and place characters and inventory items.
 
@@ -86,8 +90,8 @@ Pressing `r` when viewing the raw data will allow for further editing.
 
 ---
 ## Known Bugs:
-Sometimes, when shooting at imps, the arrow will miss.
+Sometimes, when shooting at imps, the arrow will miss. I *think* this is because the distance the arrow travels per frame is larger than the width of this imp, making it miss if shooting from a certain distance.
 
 Game doesn't scale well when loaded onto smaller screens.
 
-Background scrolling at the end of the game stops at different points depending on screen size (not in the way I want). I just ensured that overscrolled so it doesn't break the game.
+Background scrolling at the end of the game stops at different points depending on screen size (not in the way I want). I just ensured that overscrolls so it doesn't break the game.

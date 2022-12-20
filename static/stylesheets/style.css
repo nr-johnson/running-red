@@ -109,6 +109,7 @@ canvas, #background {
   bottom: 6rem;
   transform: translate(-50%, -50%);
   transition: .25s;
+  line-height: 1.2;
 }
 #initiateButton:hover {
   padding: .35rem .75rem .25rem .75rem;
@@ -252,6 +253,10 @@ canvas, #background {
   opacity: 1;
   pointer-events: all;
   transition: .25s;
+}
+
+.description {
+  color: white;
 }
 
 @media (max-width: 980px) {
