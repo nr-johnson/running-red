@@ -143,7 +143,7 @@ export function scrollWorld(player, controls) {
     let adj = player.sliding != 0 ? player.speed * (val / 10) : player.speed
     scrollOffset - adj < 0 ? scrollOffset = 0 : null
 
-    if (((controls.right.pressed && player.weaponState == 0) || player.sliding > 0) && (scrollOffset + adj) < finishLine + 10 && player.flipped) {
+    if (((controls.right.pressed && player.weaponState == 0) || player.sliding > 0) && player.flipped) {
         scrollOffset += adj
         scrollStop = overScrollAmount
         scroll()

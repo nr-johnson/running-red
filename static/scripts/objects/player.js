@@ -142,7 +142,7 @@ export class Player extends Character {
         if (this.damaging > 0) return
         if (keys.left.pressed && this.position.x < blockLeft && this.damaging <= 0 && scrollOffset > 0) {
             scrollWorld(this, this.keys)
-        } else if (keys.right.pressed && this.position.x > blockRight && this.damaging <= 0 && scrollOffset < finishLine) {
+        } else if (keys.right.pressed && this.position.x > blockRight && this.damaging <= 0 && scrollOffset < finishLine + 200) {
             scrollWorld(this, this.keys)
         } else {
             
