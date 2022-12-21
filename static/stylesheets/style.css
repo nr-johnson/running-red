@@ -211,6 +211,12 @@ canvas, #background {
 #menu h3, #menu h4 {
   margin-bottom: 0;
 }
+#menu a {
+  color: white;
+}
+#menu a:hover {
+  text-decoration: none;
+}
 
 #gameOverMenu {
   position: absolute;
