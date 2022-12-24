@@ -6,7 +6,7 @@
 ---
 
 ## Video Demo: 
-[YouTube]()
+[YouTube](https://youtu.be/jL9W17az95o)
 
 ---
 
@@ -87,6 +87,10 @@ Pressing `p` will display the raw data to be saved to the server.
 When displaying the raw data, pressing `s` will save the data.
 
 Pressing `r` when viewing the raw data will allow for further editing.
+
+---
+## Sprite Flipper
+An issue I was running into was flipping the character sprites when they moved in reverse. Programicalling flipping the sprite was too performance heavy so I wanted to create an additional sprite sheet for each but flipped. This was harder than expected because I couldn't just flip the whole image. I needed to flip each individual frame within the sprite sheet, otherwise my whole frame reference system would break. So I created a python program that flips sprite sheets for me. [You can view that program here](https://github.com/nr-johnson/flip-sprite).
 
 ---
 ## Known Bugs:
